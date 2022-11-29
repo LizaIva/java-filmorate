@@ -21,48 +21,40 @@ public class UserController {
 
     @PostMapping(value = "/users")
     public User create(@RequestBody User user) {
-        try {
-            UserValidator.validate(user);
-            log.info("Произошло создание пользователя");
-            user.setId(++counter);
-            users.put(user.getId(), user);
-            return user;
-        } catch (ValidationException e) {
-            log.error("Не прошла валидация.", e);
-            return null;
-        }
+        UserValidator.validate(user);
+        log.info("Произошло создание пользователя");
+        user.setId(++counter);
+        users.put(user.getId(), user);
+        return user;
     }
 
 
     @PutMapping(value = "/users")
     public void update(@RequestBody User user) {
         Integer id = user.getId();
-        try {
-            UserValidator.validateForUpdate(user);
 
-            if (users.containsKey(id)) {
-                User userForUpdate = users.get(id);
-                if (user.getEmail() != null) {
-                    userForUpdate.setEmail(user.getEmail());
-                }
+        UserValidator.validateForUpdate(user);
 
-                if (user.getLogin() != null) {
-                    userForUpdate.setLogin(user.getLogin());
-                }
-
-                if (user.getName() != null) {
-                    userForUpdate.setName(user.getName());
-                }
-
-                if (user.getBirthday() != null) {
-                    userForUpdate.setBirthday(user.getBirthday());
-                }
-            } else {
-                log.info("Произошло обновление пользователя");
-                users.put(id, user);
+        if (users.containsKey(id)) {
+            User userForUpdate = users.get(id);
+            if (user.getEmail() != null) {
+                userForUpdate.setEmail(user.getEmail());
             }
-        } catch (ValidationException e) {
-            log.error("Не прошла валидация.", e);
+
+            if (user.getLogin() != null) {
+                userForUpdate.setLogin(user.getLogin());
+            }
+
+            if (user.getName() != null) {
+                userForUpdate.setName(user.getName());
+            }
+
+            if (user.getBirthday() != null) {
+                userForUpdate.setBirthday(user.getBirthday());
+            }
+        } else {
+            log.info("Произошло обновление пользователя");
+            users.put(id, user);
         }
     }
 

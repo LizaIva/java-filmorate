@@ -21,49 +21,40 @@ public class FilmController {
 
     @PostMapping(value = "/films")
     public Film create(@RequestBody Film film) {
-        try {
-            FilmValidator.validate(film);
-            log.info("Произошло создание фильма");
-            film.setId(++counter);
-            films.put(film.getId(), film);
-            return film;
-        } catch (ValidationException e) {
-            log.error("Не прошла валидация.", e);
-            return null;
-        }
+        FilmValidator.validate(film);
+        log.info("Произошло создание фильма");
+        film.setId(++counter);
+        films.put(film.getId(), film);
+        return film;
     }
 
 
     @PutMapping(value = "/films")
     public void update(@RequestBody Film film) {
         Integer id = film.getId();
-        try {
-            FilmValidator.validateForUpdate(film);
+        FilmValidator.validateForUpdate(film);
 
-            if (films.containsKey(id)) {
-                log.info("Фильм найден, обновление фильма");
-                Film filmForUpdate = films.get(id);
-                if (film.getName() != null) {
-                    filmForUpdate.setName(film.getName());
-                }
-
-                if (film.getDescription() != null) {
-                    filmForUpdate.setDescription(film.getDescription());
-                }
-
-                if (film.getReleaseDate() != null) {
-                    filmForUpdate.setReleaseDate(film.getReleaseDate());
-                }
-
-                if (film.getDuration() != null) {
-                    filmForUpdate.setDuration(film.getDuration());
-                }
-            } else {
-                log.info("Фильм не найден, создание нового фильма");
-                films.put(id, film);
+        if (films.containsKey(id)) {
+            log.info("Фильм найден, обновление фильма");
+            Film filmForUpdate = films.get(id);
+            if (film.getName() != null) {
+                filmForUpdate.setName(film.getName());
             }
-        } catch (ValidationException e) {
-            log.error("Не прошла валидация.", e);
+
+            if (film.getDescription() != null) {
+                filmForUpdate.setDescription(film.getDescription());
+            }
+
+            if (film.getReleaseDate() != null) {
+                filmForUpdate.setReleaseDate(film.getReleaseDate());
+            }
+
+            if (film.getDuration() != null) {
+                filmForUpdate.setDuration(film.getDuration());
+            }
+        } else {
+            log.info("Фильм не найден, создание нового фильма");
+            films.put(id, film);
         }
     }
 
