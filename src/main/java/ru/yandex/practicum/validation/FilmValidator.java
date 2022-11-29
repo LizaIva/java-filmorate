@@ -50,8 +50,8 @@ public class FilmValidator {
         }
     }
 
-    private static void validateDuration(Duration duration) {
-        if (duration == null || duration.isZero() || duration.isNegative()) {
+    private static void validateDuration(Integer duration) {
+        if (duration == null || duration<=0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
@@ -68,8 +68,8 @@ public class FilmValidator {
         }
     }
 
-    private static void validateUpdatedDuration(Duration duration) {
-        if (duration != null && (duration.isZero() || duration.isNegative())) {
+    private static void validateUpdatedDuration(Integer duration) {
+        if (duration != null && duration <=0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
