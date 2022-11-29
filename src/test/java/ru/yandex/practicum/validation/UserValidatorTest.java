@@ -63,6 +63,7 @@ public class UserValidatorTest {
     @Test
     public void validateUpdatedTest() {
         User updateUser = new User(null, null, null, null);
+        updateUser.setId(1);
         assertDoesNotThrow(() -> UserValidator.validateForUpdate(updateUser));
 
         updateUser.setEmail("lalalalala");

@@ -63,6 +63,7 @@ public class FilmValidatorTest {
     @Test
     public void validateUpdatedTest() {
         Film updateFilm = new Film(null, null, null, null);
+        updateFilm.setId(1);
         assertDoesNotThrow(() -> FilmValidator.validateForUpdate(updateFilm));
 
         updateFilm.setName(" ");
