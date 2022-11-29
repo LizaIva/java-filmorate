@@ -1,11 +1,15 @@
 package ru.yandex.practicum.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
+import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.validation.FilmValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.validation.UserValidator;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,9 +38,15 @@ public class FilmController {
         FilmValidator.validateForUpdate(film);
         Integer id = film.getId();
 
+        Film filmForUpdate = films.get(id);
+
+        if (filmForUpdate == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Неизвестный фильм");
+        }
+
         if (films.containsKey(id)) {
             log.info("Фильм найден, обновление фильма");
-            Film filmForUpdate = films.get(id);
+
             if (film.getName() != null) {
                 filmForUpdate.setName(film.getName());
             }
@@ -52,12 +62,11 @@ public class FilmController {
             if (film.getDuration() != null) {
                 filmForUpdate.setDuration(film.getDuration());
             }
-        } else {
-            log.info("Фильм не найден, создание нового фильма");
-            films.put(id, film);
+
         }
         return films.get(id);
     }
+
 
     @GetMapping(value = "/films")
     public Collection<Film> findAllFilms() {

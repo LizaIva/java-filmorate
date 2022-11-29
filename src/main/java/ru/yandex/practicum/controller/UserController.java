@@ -1,5 +1,7 @@
 package ru.yandex.practicum.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.validation.UserValidator;
@@ -34,28 +36,29 @@ public class UserController {
         UserValidator.validateForUpdate(user);
         Integer id = user.getId();
 
-        if (users.containsKey(id)) {
-            User userForUpdate = users.get(id);
-            if (user.getEmail() != null) {
-                userForUpdate.setEmail(user.getEmail());
-            }
+        User userForUpdate = users.get(id);
 
-            if (user.getLogin() != null) {
-                userForUpdate.setLogin(user.getLogin());
-            }
-
-            if (user.getName() != null) {
-                userForUpdate.setName(user.getName());
-            }
-
-            if (user.getBirthday() != null) {
-                userForUpdate.setBirthday(user.getBirthday());
-            }
-        } else {
-            log.info("Произошло обновление пользователя");
-            users.put(id, user);
+        if (userForUpdate == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Неизвестный пользователь");
         }
-        return users.get(id);
+
+        if (user.getEmail() != null) {
+            userForUpdate.setEmail(user.getEmail());
+        }
+
+        if (user.getLogin() != null) {
+            userForUpdate.setLogin(user.getLogin());
+        }
+
+        if (user.getName() != null) {
+            userForUpdate.setName(user.getName());
+        }
+
+        if (user.getBirthday() != null) {
+            userForUpdate.setBirthday(user.getBirthday());
+        }
+
+        return userForUpdate;
     }
 
     @GetMapping(value = "/users")
