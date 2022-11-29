@@ -30,9 +30,9 @@ public class FilmController {
 
 
     @PutMapping(value = "/films")
-    public void update(@RequestBody Film film) {
-        Integer id = film.getId();
+    public Film update(@RequestBody Film film) {
         FilmValidator.validateForUpdate(film);
+        Integer id = film.getId();
 
         if (films.containsKey(id)) {
             log.info("Фильм найден, обновление фильма");
@@ -56,6 +56,7 @@ public class FilmController {
             log.info("Фильм не найден, создание нового фильма");
             films.put(id, film);
         }
+        return films.get(id);
     }
 
     @GetMapping(value = "/films")

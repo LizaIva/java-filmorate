@@ -30,10 +30,9 @@ public class UserController {
 
 
     @PutMapping(value = "/users")
-    public void update(@RequestBody User user) {
-        Integer id = user.getId();
-
+    public User update(@RequestBody User user) {
         UserValidator.validateForUpdate(user);
+        Integer id = user.getId();
 
         if (users.containsKey(id)) {
             User userForUpdate = users.get(id);
@@ -56,6 +55,7 @@ public class UserController {
             log.info("Произошло обновление пользователя");
             users.put(id, user);
         }
+        return users.get(id);
     }
 
     @GetMapping(value = "/users")
