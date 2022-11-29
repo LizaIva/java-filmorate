@@ -24,7 +24,7 @@ public class FilmController {
         try {
             FilmValidator.validate(film);
             log.info("Произошло создание фильма");
-            film.setId(counter++);
+            film.setId(++counter);
             films.put(film.getId(), film);
             return film;
         } catch (ValidationException e) {

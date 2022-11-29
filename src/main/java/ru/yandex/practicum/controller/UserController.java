@@ -24,7 +24,7 @@ public class UserController {
         try {
             UserValidator.validate(user);
             log.info("Произошло создание пользователя");
-            user.setId(counter++);
+            user.setId(++counter);
             users.put(user.getId(), user);
             return user;
         } catch (ValidationException e) {
