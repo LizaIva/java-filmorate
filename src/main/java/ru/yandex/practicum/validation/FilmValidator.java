@@ -1,11 +1,10 @@
-package com.example.demo.validation;
+package ru.yandex.practicum.validation;
 
-import com.example.demo.exception.ValidationException;
-import com.example.demo.model.Film;
+import ru.yandex.practicum.exception.ValidationException;
+import ru.yandex.practicum.model.Film;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class FilmValidator {
     public static final LocalDate TIME_TO_START_FILM = LocalDate.of(1895, 12, 28);

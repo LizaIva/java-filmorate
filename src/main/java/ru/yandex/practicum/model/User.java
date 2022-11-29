@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package ru.yandex.practicum.model;
 
 import lombok.Data;
 

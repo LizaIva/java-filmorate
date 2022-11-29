@@ -1,8 +1,8 @@
-package com.example.demo.controller;
+package ru.yandex.practicum.controller;
 
-import com.example.demo.exception.ValidationException;
-import com.example.demo.model.User;
-import com.example.demo.validation.UserValidator;
+import ru.yandex.practicum.exception.ValidationException;
+import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.validation.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -34,14 +34,14 @@ public class UserController {
     }
 
 
-    @PutMapping(value = "/users/{id}")
-    public void update(@PathVariable String id, @RequestBody User user) {
-        Integer idParsed = Integer.valueOf(id);
+    @PutMapping(value = "/users")
+    public void update(@RequestBody User user) {
+        Integer id = user.getId();
         try {
             UserValidator.validateForUpdate(user);
 
-            if (users.containsKey(idParsed)) {
-                User userForUpdate = users.get(idParsed);
+            if (users.containsKey(id)) {
+                User userForUpdate = users.get(id);
                 if (user.getEmail() != null) {
                     userForUpdate.setEmail(user.getEmail());
                 }
@@ -59,7 +59,7 @@ public class UserController {
                 }
             } else {
                 log.info("Произошло обновление пользователя");
-                users.put(idParsed, user);
+                users.put(id, user);
             }
         } catch (ValidationException e) {
             log.error("Не прошла валидация.", e);

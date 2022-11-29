@@ -1,7 +1,7 @@
-package com.example.demo.validation;
+package ru.yandex.practicum.validation;
 
-import com.example.demo.exception.ValidationException;
-import com.example.demo.model.Film;
+import ru.yandex.practicum.exception.ValidationException;
+import ru.yandex.practicum.model.Film;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;

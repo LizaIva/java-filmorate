@@ -1,8 +1,8 @@
-package com.example.demo.controller;
+package ru.yandex.practicum.controller;
 
-import com.example.demo.exception.ValidationException;
-import com.example.demo.model.Film;
-import com.example.demo.validation.FilmValidator;
+import ru.yandex.practicum.exception.ValidationException;
+import ru.yandex.practicum.model.Film;
+import ru.yandex.practicum.validation.FilmValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -34,15 +34,15 @@ public class FilmController {
     }
 
 
-    @PutMapping(value = "/films/{id}")
-    public void update(@PathVariable String id, @RequestBody Film film) {
-        Integer idParsed = Integer.valueOf(id);
+    @PutMapping(value = "/films")
+    public void update(@RequestBody Film film) {
+        Integer id = film.getId();
         try {
             FilmValidator.validateForUpdate(film);
 
-            if (films.containsKey(idParsed)) {
+            if (films.containsKey(id)) {
                 log.info("Фильм найден, обновление фильма");
-                Film filmForUpdate = films.get(idParsed);
+                Film filmForUpdate = films.get(id);
                 if (film.getName() != null) {
                     filmForUpdate.setName(film.getName());
                 }
@@ -60,7 +60,7 @@ public class FilmController {
                 }
             } else {
                 log.info("Фильм не найден, создание нового фильма");
-                films.put(idParsed, film);
+                films.put(id, film);
             }
         } catch (ValidationException e) {
             log.error("Не прошла валидация.", e);
