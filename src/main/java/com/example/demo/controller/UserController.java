@@ -35,13 +35,13 @@ public class UserController {
 
 
     @PutMapping(value = "/users/{id}")
-    public void update(@PathVariable Integer id, @RequestBody User user) {
-
+    public void update(@PathVariable String id, @RequestBody User user) {
+        Integer idParsed = Integer.valueOf(id);
         try {
             UserValidator.validateForUpdate(user);
 
-            if (users.containsKey(id)) {
-                User userForUpdate = users.get(id);
+            if (users.containsKey(idParsed)) {
+                User userForUpdate = users.get(idParsed);
                 if (user.getEmail() != null) {
                     userForUpdate.setEmail(user.getEmail());
                 }
@@ -59,7 +59,7 @@ public class UserController {
                 }
             } else {
                 log.info("Произошло обновление пользователя");
-                users.put(id, user);
+                users.put(idParsed, user);
             }
         } catch (ValidationException e) {
             log.error("Не прошла валидация.", e);

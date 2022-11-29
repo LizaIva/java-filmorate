@@ -35,13 +35,14 @@ public class FilmController {
 
 
     @PutMapping(value = "/films/{id}")
-    public void update(@PathVariable Integer id, @RequestBody Film film) {
+    public void update(@PathVariable String id, @RequestBody Film film) {
+        Integer idParsed = Integer.valueOf(id);
         try {
             FilmValidator.validateForUpdate(film);
 
-            if (films.containsKey(id)) {
+            if (films.containsKey(idParsed)) {
                 log.info("Фильм найден, обновление фильма");
-                Film filmForUpdate = films.get(id);
+                Film filmForUpdate = films.get(idParsed);
                 if (film.getName() != null) {
                     filmForUpdate.setName(film.getName());
                 }
@@ -59,7 +60,7 @@ public class FilmController {
                 }
             } else {
                 log.info("Фильм не найден, создание нового фильма");
-                films.put(id, film);
+                films.put(idParsed, film);
             }
         } catch (ValidationException e) {
             log.error("Не прошла валидация.", e);
