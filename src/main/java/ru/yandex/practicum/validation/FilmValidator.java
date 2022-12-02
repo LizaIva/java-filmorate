@@ -3,7 +3,6 @@ package ru.yandex.practicum.validation;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 public class FilmValidator {
@@ -51,13 +50,13 @@ public class FilmValidator {
     }
 
     private static void validateDuration(Integer duration) {
-        if (duration == null || duration<=0) {
+        if (duration == null || duration <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
 
     private static void validateUpdatedName(String name) {
-        if (name != null && (name.isEmpty()|| name.isBlank())) {
+        if (name != null && (name.isEmpty() || name.isBlank())) {
             throw new ValidationException("Название фильма не должно быть пустым");
         }
     }
@@ -69,7 +68,7 @@ public class FilmValidator {
     }
 
     private static void validateUpdatedDuration(Integer duration) {
-        if (duration != null && duration <=0) {
+        if (duration != null && duration <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
@@ -79,4 +78,6 @@ public class FilmValidator {
             throw new ValidationException("Дата релиза фильма не может быть раньше 28.12.1895");
         }
     }
+
+
 }
