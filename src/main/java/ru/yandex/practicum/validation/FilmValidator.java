@@ -23,7 +23,7 @@ public class FilmValidator {
             throw new ValidationException("Отсутсвуют данные для обновления фильма");
         }
         if (film.getId() == null) {
-            throw new ValidationException("Отсутсвует id фильма");
+            throw new ValidationException("Отсутсвует id");
         }
         validateUpdatedName(film.getName());
         validateUpdatedDescription(film.getDescription());
