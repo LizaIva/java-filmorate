@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.storage.UserStorage;
+import ru.yandex.practicum.validation.UserValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,46 @@ public class UserService {
 
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
+    }
+
+    public User put(User user) {
+        return userStorage.put(user);
+    }
+
+    public User update(User user) {
+        UserValidator.validateForUpdate(user);
+
+        User userForUpdate = userStorage.get(user.getId());
+
+        if (user.getEmail() != null) {
+            userForUpdate.setEmail(user.getEmail());
+        }
+
+        if (user.getLogin() != null) {
+            userForUpdate.setLogin(user.getLogin());
+        }
+
+        if (user.getName() != null) {
+            userForUpdate.setName(user.getName());
+        }
+
+        if (user.getBirthday() != null) {
+            userForUpdate.setBirthday(user.getBirthday());
+        }
+
+        return userForUpdate;
+    }
+
+    public User get(Integer id) {
+        return userStorage.get(id);
+    }
+
+    public List<User> getUsersByIds(List<Integer> ids) {
+        return userStorage.getUsersByIds(ids);
+    }
+
+    public List<User> getAll() {
+        return userStorage.getAll();
     }
 
 

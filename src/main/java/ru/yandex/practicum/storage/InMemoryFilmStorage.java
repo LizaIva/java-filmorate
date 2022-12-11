@@ -14,6 +14,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film put(Film film) {
+        if (film == null) {
+            throw new UnknownDataException("Нельзя сохранить пустой фильм");
+        }
+
         if (film.getId() == null) {
             film.setId(++counter);
         }

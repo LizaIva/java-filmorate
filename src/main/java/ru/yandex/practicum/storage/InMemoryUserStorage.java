@@ -16,6 +16,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User put(User user) {
+        if (user == null) {
+            throw new UnknownDataException("Нельзя сохранить пустого пользователя");
+        }
+
         if (user.getId() == null) {
             user.setId(++counter);
         }

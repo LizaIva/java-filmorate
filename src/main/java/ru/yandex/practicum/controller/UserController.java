@@ -2,13 +2,9 @@ package ru.yandex.practicum.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.service.UserService;
-import ru.yandex.practicum.storage.UserStorage;
-import ru.yandex.practicum.validation.UserValidator;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -20,60 +16,34 @@ public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    private final UserStorage userStorage;
     private final UserService userService;
 
-    public UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
         log.info("Произошло создание пользователя");
-        return userStorage.put(user);
+        return userService.put(user);
     }
 
 
     @PutMapping
     public User update(@RequestBody User user) {
-        UserValidator.validateForUpdate(user);
-
-        User userForUpdate = userStorage.get(user.getId());
-
-        if (userForUpdate == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Неизвестный пользователь");
-        }
-
-        if (user.getEmail() != null) {
-            userForUpdate.setEmail(user.getEmail());
-        }
-
-        if (user.getLogin() != null) {
-            userForUpdate.setLogin(user.getLogin());
-        }
-
-        if (user.getName() != null) {
-            userForUpdate.setName(user.getName());
-        }
-
-        if (user.getBirthday() != null) {
-            userForUpdate.setBirthday(user.getBirthday());
-        }
-
-        return userForUpdate;
+        return userService.update(user);
     }
 
     @GetMapping
     public Collection<User> findAllUsers() {
         log.info("Получен запрос списка всех пользователей.");
-        return userStorage.getAll();
+        return userService.getAll();
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Integer id) {
         log.info("Получен запрос пользователя по id.");
-        return userStorage.get(id);
+        return userService.get(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
