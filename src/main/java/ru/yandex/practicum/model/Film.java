@@ -1,6 +1,7 @@
 package ru.yandex.practicum.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import ru.yandex.practicum.validation.FilmReleaseDate;
 
@@ -9,8 +10,11 @@ import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
+@EqualsAndHashCode(exclude = "userLikes")
 public class Film {
 
     private Integer id;
@@ -28,12 +32,20 @@ public class Film {
     @Positive
     private Integer duration;
 
+    private Set<Integer> userLikes = new HashSet<>();
+
+    public void addUserLike(int userId) {
+        userLikes.add(userId);
+    }
+
+    public void removeUserLike(int userId) {
+        userLikes.remove(userId);
+    }
+
     public Film(String name, String description, LocalDate releaseDate, Integer duration) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
     }
-
-
 }
