@@ -1,4 +1,4 @@
-package ru.yandex.practicum.model;
+package ru.yandex.practicum.model.user;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,11 +8,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(exclude = "friendsId")
+@EqualsAndHashCode(exclude = "friends")
 public class User {
 
     private Integer id;
@@ -26,8 +28,7 @@ public class User {
 
     @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
-
-    private Set<Integer> friendsId = new HashSet<>();
+    private List<FriendConnection> friends = new ArrayList<>();
 
     public User(String email, String login, String name, LocalDate birthday) {
         this.email = email;
