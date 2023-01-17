@@ -11,6 +11,7 @@ import ru.yandex.practicum.storage.UserStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -48,36 +49,51 @@ public class UserDbStorage implements UserStorage {
     public User updateUser(User user) {
         User userForUpdate = get(user.getId());
 
+        StringBuilder query = new StringBuilder("update users set ");
+        List<Object> args = new LinkedList<>();
+
         if (user.getEmail() != null) {
-            jdbcTemplate.update("update users set EMAIL = ? where USER_ID = ?",
-                    user.getEmail(),
-                    user.getId()
-            );
+            query.append("EMAIL = ?");
+            args.add(user.getEmail());
+
             userForUpdate.setEmail(user.getEmail());
         }
 
         if (user.getLogin() != null) {
-            jdbcTemplate.update("update users set LOGIN = ? where USER_ID = ?",
-                    user.getLogin(),
-                    user.getId()
-            );
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("LOGIN = ?");
+            args.add(user.getLogin());
+
             userForUpdate.setLogin(user.getLogin());
         }
 
         if (user.getName() != null) {
-            jdbcTemplate.update("update users set NAME = ? where USER_ID = ?",
-                    user.getName(),
-                    user.getId()
-            );
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("NAME = ?");
+            args.add(user.getName());
+
             userForUpdate.setName(user.getName());
         }
 
         if (user.getBirthday() != null) {
-            jdbcTemplate.update("update users set BIRTHDAY = ? where USER_ID = ?",
-                    user.getBirthday(),
-                    user.getId()
-            );
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("BIRTHDAY = ?");
+            args.add(user.getBirthday());
+
             userForUpdate.setBirthday(user.getBirthday());
+        }
+
+        if (!args.isEmpty()) {
+            query.append(" where USER_ID = ?");
+            args.add(user.getId());
+
+            jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
         }
 
         return userForUpdate;

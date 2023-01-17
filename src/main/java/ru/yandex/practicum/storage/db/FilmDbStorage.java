@@ -12,11 +12,16 @@ import ru.yandex.practicum.storage.FilmStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
 public class FilmDbStorage implements FilmStorage {
+
+    private static final String UPDATE_FILM_TITLE_QUERY = "update film set TITLE = %s where FILM_ID = %d";
+
     private final JdbcTemplate jdbcTemplate;
     private final UserDbStorage userDbStorage;
 
@@ -82,52 +87,62 @@ public class FilmDbStorage implements FilmStorage {
     public Film updateFilm(Film film) {
         Film filmForUpdate = get(film.getId());
 
+        StringBuilder query = new StringBuilder("update film set ");
+        List<Object> args = new LinkedList<>();
+
         if (film.getName() != null) {
-            jdbcTemplate.update("update film set TITLE = ? where FILM_ID = ?",
-                    film.getName(),
-                    film.getId()
-            );
+            query.append("TITLE = ?");
+            args.add(film.getName());
+
             filmForUpdate.setName(film.getName());
         }
         if (film.getDescription() != null) {
-            jdbcTemplate.update("update film set DESCRIPTION = ? where FILM_ID = ?",
-                    film.getDescription(),
-                    film.getId()
-            );
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("DESCRIPTION = ?");
+            args.add(film.getDescription());
+
             filmForUpdate.setDescription(film.getDescription());
         }
 
         if (film.getReleaseDate() != null) {
-            jdbcTemplate.update("update film set RELEASE_DATE = ? where FILM_ID = ?",
-                    film.getReleaseDate(),
-                    film.getId()
-            );
-            filmForUpdate.setReleaseDate(film.getReleaseDate());
-        }
+            if(!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("RELEASE_DATE = ?");
+            args.add(film.getReleaseDate());
 
-        if (film.getReleaseDate() != null) {
-            jdbcTemplate.update("update film set RELEASE_DATE = ? where FILM_ID = ?",
-                    film.getReleaseDate(),
-                    film.getId()
-            );
             filmForUpdate.setReleaseDate(film.getReleaseDate());
         }
 
         if (film.getDuration() != null) {
-            jdbcTemplate.update("update film set DURATION = ? where FILM_ID = ?",
-                    film.getDuration(),
-                    film.getId()
-            );
+            if(!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("DURATION = ?");
+            args.add(film.getDuration());
             filmForUpdate.setDuration(film.getDuration());
         }
 
         if (film.getMpa() != null) {
-            jdbcTemplate.update("update film set MPA_ID = ? where FILM_ID = ?",
-                    film.getMpa().getId(),
-                    film.getId()
-            );
+            if(!args.isEmpty()) {
+                query.append(", ");
+            }
+
+            query.append("MPA_ID = ?");
+            args.add(film.getMpa().getId());
+
             filmForUpdate.setMpa(film.getMpa());
         }
+
+        if (!args.isEmpty()) {
+            query.append(" where FILM_ID = ?");
+            args.add(film.getId());
+
+            jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
+        }
+
         return filmForUpdate;
     }
 
