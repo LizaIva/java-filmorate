@@ -1,16 +1,15 @@
-package ru.yandex.practicum.model;
+package ru.yandex.practicum.model.film;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import ru.yandex.practicum.validation.FilmReleaseDate;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PastOrPresent;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -34,18 +33,16 @@ public class Film {
 
     private Set<Integer> userLikes = new HashSet<>();
 
-    public void addUserLike(int userId) {
-        userLikes.add(userId);
-    }
+    @NotNull
+    private MPA mpa;
 
-    public void removeUserLike(int userId) {
-        userLikes.remove(userId);
-    }
+    private List<Genre> genres;
 
-    public Film(String name, String description, LocalDate releaseDate, Integer duration) {
+    public Film(String name, String description, LocalDate releaseDate, Integer duration, MPA mpa) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
+        this.mpa = mpa;
     }
 }

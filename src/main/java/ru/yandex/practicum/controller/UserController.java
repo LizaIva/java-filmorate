@@ -3,7 +3,7 @@ package ru.yandex.practicum.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.service.UserService;
 
 import javax.validation.Valid;
@@ -68,5 +68,17 @@ public class UserController {
     public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         log.info("Получен запрос на вывод общих друзей 2-х пользователей.");
         return userService.commonFriends(id, otherId);
+    }
+
+    @PatchMapping("/{userId}/accept-friendship/{friendId}")
+    public void acceptFriendship(@PathVariable Integer userId, @PathVariable Integer friendId) {
+        log.info("Пользователь добавлен в друзья.");
+        userService.acceptFriendship(userId, friendId);
+    }
+
+    @GetMapping("/status/{statusId}")
+    public String getStatusName(@PathVariable Integer statusId) {
+        log.info("Получение названия статуса дружбы.");
+        return userService.getStatusName(statusId);
     }
 }

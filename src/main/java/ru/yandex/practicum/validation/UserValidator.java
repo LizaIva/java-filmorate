@@ -1,7 +1,7 @@
 package ru.yandex.practicum.validation;
 
 import ru.yandex.practicum.exception.ValidationException;
-import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.model.user.User;
 
 import java.time.LocalDate;
 

@@ -1,7 +1,7 @@
 # java-filmorate
 
 ER-диаграмма
-![ER-diagram](ER-diagram.png)
+![ER-diagrama](ER-diagrama.png)
 
 # Описание
 ## user
@@ -69,6 +69,12 @@ ER-диаграмма
 - внешний ключ film_id (ссылается на таблицу film) - id фильма, которому поставили лайк;
 - внешний ключ user_id (ссылается на таблицу user) - id пользователя, который поставил лайк;
 
+## films_genre
+Содержит информацию о фильмах и их жанрах.
+Таблица включает такие поля:
+- внешний ключ film_id (ссылается на таблицу film) - id фильма;
+- внешний ключ genre_id (ссылается на таблицу genre) - id жанра;
+
 
 # Примеры запросов для основных операций приложения
 Запрос на получение всех пользователей
@@ -121,9 +127,9 @@ WHERE film_id=‘id’;
 Запрос на получение топ N фильмов 
 ```roomsql
 SELECT title
-FROM film AS f JOIN ON (SELECT film_id, 
+FROM film AS f JOIN (SELECT film_id, 
                        COUNT(user_id) as likes_count
-                       FROM film_like
+                       FROM FILM_LIKES
                        GROUP BY film_id) 
 AS film_likes_count ON f.film_id = film_likes_count.film_id
 ORDER BY film_likes_count.likes_count DESC

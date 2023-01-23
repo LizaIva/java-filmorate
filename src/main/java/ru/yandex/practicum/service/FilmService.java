@@ -3,12 +3,16 @@ package ru.yandex.practicum.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.model.Film;
+import ru.yandex.practicum.model.film.Film;
+import ru.yandex.practicum.model.film.Genre;
+import ru.yandex.practicum.model.film.MPA;
 import ru.yandex.practicum.storage.FilmStorage;
-import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.FilmValidator;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FilmService {
@@ -17,41 +21,32 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
 
-    private final UserStorage userStorage;
 
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
     }
 
     public Film put(Film film) {
+        deduplicateGenres(film);
+
         return filmStorage.put(film);
     }
 
     public Film update(Film film) {
         FilmValidator.validateForUpdate(film);
+        deduplicateGenres(film);
 
-        Film filmForUpdate = filmStorage.get(film.getId());
+        filmStorage.updateGenre(film.getId(), film.getGenres());
+        return filmStorage.updateFilm(film);
+    }
 
-        log.info("Фильм найден, обновление фильма");
-
-        if (film.getName() != null) {
-            filmForUpdate.setName(film.getName());
+    private static void deduplicateGenres(Film film) {
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            return;
         }
 
-        if (film.getDescription() != null) {
-            filmForUpdate.setDescription(film.getDescription());
-        }
-
-        if (film.getReleaseDate() != null) {
-            filmForUpdate.setReleaseDate(film.getReleaseDate());
-        }
-
-        if (film.getDuration() != null) {
-            filmForUpdate.setDuration(film.getDuration());
-        }
-
-        return filmForUpdate;
+        Set<Genre> set = new HashSet<>(film.getGenres());
+        film.setGenres(new ArrayList<>(set));
     }
 
     public Film get(Integer id) {
@@ -63,24 +58,30 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
-        userStorage.get(userId);
-        Film film = filmStorage.get(filmId);
-        film.addUserLike(userId);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
-        userStorage.get(userId);
-        Film film = filmStorage.get(filmId);
-        film.removeUserLike(userId);
+        filmStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> getTop(Integer limit) {
-        List<Film> all = filmStorage.getAll();
+        return filmStorage.getTop(limit);
+    }
 
-        if (all.size() == 0) {
-            return null;
-        }
+    public List<Genre> getAllGenres() {
+        return filmStorage.getAllGenres();
+    }
 
-        return all.subList(0, limit > all.size() ? all.size() : limit);
+    public Genre getGenreById(int genreId) {
+        return filmStorage.getGenreById(genreId);
+    }
+
+    public List<MPA> getAllCategories() {
+        return filmStorage.getAllCategories();
+    }
+
+    public MPA getCategoryById(int categoryId) {
+        return filmStorage.getCategoryById(categoryId);
     }
 }
