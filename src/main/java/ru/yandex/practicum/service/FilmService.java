@@ -7,6 +7,7 @@ import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
 import ru.yandex.practicum.storage.FilmStorage;
+import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.FilmValidator;
 
 import java.util.ArrayList;
@@ -21,9 +22,12 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
 
+    private final UserStorage userStorage;
 
-    public FilmService(FilmStorage filmStorage) {
+
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film put(Film film) {
@@ -58,10 +62,14 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
+        filmStorage.checkFilm(filmId);
+        userStorage.checkUser(userId);
         filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
+        filmStorage.checkFilm(filmId);
+        userStorage.checkUser(userId);
         filmStorage.deleteLike(filmId, userId);
     }
 
@@ -86,12 +94,7 @@ public class FilmService {
     }
 
     public Film deleteById(int id) {
-        checkFilm(id);
+        filmStorage.checkFilm(id);
         return filmStorage.deleteById(id);
     }
-
-    private void checkFilm(int id) {
-        filmStorage.checkFilm(id);
-    }
-
 }

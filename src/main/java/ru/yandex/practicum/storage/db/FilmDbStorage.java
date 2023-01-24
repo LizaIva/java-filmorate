@@ -29,11 +29,9 @@ public class FilmDbStorage implements FilmStorage {
     private static final Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final UserDbStorage userDbStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDbStorage userDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userDbStorage = userDbStorage;
     }
 
     @Override
@@ -189,9 +187,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(int filmId, int userId) {
-        userDbStorage.get(userId);
-        get(filmId);
-
         jdbcTemplate.update(
                 "INSERT INTO FILM_LIKES VALUES ( ?,? )",
                 filmId,
@@ -201,8 +196,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void deleteLike(int filmId, int userId) {
-        userDbStorage.get(userId);
-
         jdbcTemplate.update(
                 "DELETE FROM FILM_LIKES WHERE FILM_ID= ? AND USER_ID = ?",
                 filmId,

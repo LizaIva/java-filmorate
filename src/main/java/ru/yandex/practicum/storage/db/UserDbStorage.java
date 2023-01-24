@@ -131,6 +131,7 @@ public class UserDbStorage implements UserStorage {
         final String sqlDeleteQuery = "DELETE FROM users WHERE USER_ID = ?";
         User user = get(id);
         jdbcTemplate.update(sqlDeleteQuery, id);
+
         log.info("запрос на удаление user с id = {} отправлен", id);
         return user;
     }
@@ -177,9 +178,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(int userId, int friendId) {
-        get(userId);
-        get(friendId);
-
         String sqlQuery = "insert into user_friends (user_id, friend_id) " +
                 "values (?, ?)";
 
@@ -192,12 +190,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void acceptFriendship(int userId, int friendId) {
-        User user = get(userId);
         User friend = get(friendId);
 
         boolean notFriend = true;
         for (FriendConnection friendConnection : friend.getFriends()) {
-            if (friendConnection.getFriendId() == user.getId()) {
+            if (friendConnection.getFriendId() == userId) {
                 notFriend = false;
                 break;
             }
