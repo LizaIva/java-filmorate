@@ -66,7 +66,6 @@ public class FilmController {
         return filmService.getTop(Integer.valueOf(count));
     }
 
-    // sort: по популярности
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam(name = "userId") Integer userId,
                                @RequestParam(name = "friendId") Integer friendId) {
