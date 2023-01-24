@@ -31,4 +31,6 @@ public interface FilmStorage {
     void updateGenre(int filmId, List<Genre> genreIds);
 
     Film updateFilm (Film film);
+
+    List<Film> getCommonFilms(Integer userId, Integer friendId);
 }
