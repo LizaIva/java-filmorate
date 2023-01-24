@@ -84,4 +84,14 @@ public class FilmService {
     public MPA getCategoryById(int categoryId) {
         return filmStorage.getCategoryById(categoryId);
     }
+
+    public Film deleteById(int id) {
+        checkFilm(id);
+        return filmStorage.deleteById(id);
+    }
+
+    private void checkFilm(int id) {
+        filmStorage.checkFilm(id);
+    }
+
 }

@@ -1,8 +1,11 @@
 package ru.yandex.practicum.storage.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.user.FriendConnection;
@@ -17,6 +20,7 @@ import java.util.List;
 @Service
 public class UserDbStorage implements UserStorage {
 
+    private static final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -122,6 +126,15 @@ public class UserDbStorage implements UserStorage {
         return foundUser;
     }
 
+    @Override
+    public User deleteById(int id) {
+        final String sqlDeleteQuery = "DELETE FROM users WHERE USER_ID = ?";
+        User user = get(id);
+        jdbcTemplate.update(sqlDeleteQuery, id);
+        log.info("запрос на удаление user с id = {} отправлен", id);
+        return user;
+    }
+
     private List<FriendConnection> findFriends(Integer id) {
         return jdbcTemplate.query(
                 "select us.friend_id, s.name from user_friends us JOIN status s ON us.status_id = s.STATUS_ID WHERE USER_ID = ?",
@@ -161,7 +174,6 @@ public class UserDbStorage implements UserStorage {
                 }
         );
     }
-
 
     @Override
     public void addFriend(int userId, int friendId) {
@@ -290,5 +302,15 @@ public class UserDbStorage implements UserStorage {
 
         user.setId(rs.getInt("user_id"));
         return user;
+    }
+
+    @Override
+    public void checkUser(int id){
+        final String sqlCheckQuery = "SELECT * FROM users WHERE USER_ID = ?";
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlCheckQuery, id);
+        if (!userRows.next()) {
+            log.info("user с id = {} не найден.", id);
+            throw new UnknownDataException("user с id = " + id + " не найден.");
+        }
     }
 }

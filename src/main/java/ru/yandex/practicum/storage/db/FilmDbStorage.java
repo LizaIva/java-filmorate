@@ -1,13 +1,17 @@
 package ru.yandex.practicum.storage.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
+import ru.yandex.practicum.service.FilmService;
 import ru.yandex.practicum.storage.FilmStorage;
 
 import java.sql.*;
@@ -21,6 +25,8 @@ import java.util.List;
 public class FilmDbStorage implements FilmStorage {
 
     private static final String UPDATE_FILM_TITLE_QUERY = "update film set TITLE = %s where FILM_ID = %d";
+
+    private static final Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final UserDbStorage userDbStorage;
@@ -162,6 +168,19 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Film deleteById(int id) {
+        Film film = get(id);
+        final String sqlDeleteQuery = "DELETE FROM FILM WHERE FILM_ID = ?";
+        final String sqlDeleteGenreQuery = "DELETE FROM film_genre WHERE film_id = ?";
+        final String sqlDeleteLikesQuery = "DELETE FROM film_likes WHERE film_id = ?";
+        jdbcTemplate.update(sqlDeleteQuery, id);
+        jdbcTemplate.update(sqlDeleteGenreQuery, id);
+        jdbcTemplate.update(sqlDeleteLikesQuery, id);
+        log.info("Фильм {} с id = {} удален", film.getName(), film.getId());
+        return film;
+    }
+
+    @Override
     public List<Film> getAll() {
         return jdbcTemplate.query("select *, M.NAME as mpa_name from film join MPA M on M.MPA_ID = FILM.MPA_ID",
                 (rs, rowNum) -> mapFilmData(rs)
@@ -278,5 +297,15 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setGenres(filmGenres);
         return film;
+    }
+
+    @Override
+    public void checkFilm(int id) {
+        String checkQuery = "SELECT * FROM FILM WHERE FILM_ID = ?";
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkQuery, id);
+        if (!filmRows.next()) {
+            log.warn("Фильм с идентификатором {} не найден.", id);
+            throw new UnknownDataException("Фильм c id = " + id + " не найден");
+        }
     }
 }

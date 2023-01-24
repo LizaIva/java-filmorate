@@ -81,4 +81,9 @@ public class UserController {
         log.info("Получение названия статуса дружбы.");
         return userService.getStatusName(statusId);
     }
+
+    @DeleteMapping("/{id}")
+    public User deleteById(@PathVariable int id) {
+        return userService.deleteById(id);
+    }
 }

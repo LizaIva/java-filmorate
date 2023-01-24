@@ -1,6 +1,8 @@
 package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
@@ -47,6 +49,10 @@ public class UserService {
         return userStorage.getAll();
     }
 
+    public User deleteById(int id) {
+        userStorage.checkUser(id);
+        return userStorage.deleteById(id);
+    }
 
     public void addFriends(int userId, int addedUserId) {
         userStorage.addFriend(userId, addedUserId);
@@ -71,4 +77,5 @@ public class UserService {
     public List<User> getAllFriends(int userId) {
        return userStorage.foundUserFriends(userId);
     }
+
 }
