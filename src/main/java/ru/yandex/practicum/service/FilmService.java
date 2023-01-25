@@ -1,7 +1,6 @@
 package ru.yandex.practicum.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
@@ -15,20 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@RequiredArgsConstructor
 @Service
 public class FilmService {
-
-    private static final Logger log = LoggerFactory.getLogger(FilmService.class);
-
     private final FilmStorage filmStorage;
-
     private final UserStorage userStorage;
-
-
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
 
     public Film put(Film film) {
         deduplicateGenres(film);

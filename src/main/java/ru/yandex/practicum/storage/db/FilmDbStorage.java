@@ -1,39 +1,31 @@
 package ru.yandex.practicum.storage.db;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
-import ru.yandex.practicum.service.FilmService;
 import ru.yandex.practicum.storage.FilmStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Slf4j
+@Component
+@RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
-
     private static final String UPDATE_FILM_TITLE_QUERY = "update film set TITLE = %s where FILM_ID = %d";
-
-    private static final Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
-
     private final JdbcTemplate jdbcTemplate;
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Film put(Film film) {
@@ -170,11 +162,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film deleteById(int id) {
         Film film = get(id);
         final String sqlDeleteQuery = "DELETE FROM FILM WHERE FILM_ID = ?";
-        final String sqlDeleteGenreQuery = "DELETE FROM film_genre WHERE film_id = ?";
-        final String sqlDeleteLikesQuery = "DELETE FROM film_likes WHERE film_id = ?";
         jdbcTemplate.update(sqlDeleteQuery, id);
-        jdbcTemplate.update(sqlDeleteGenreQuery, id);
-        jdbcTemplate.update(sqlDeleteLikesQuery, id);
         log.info("Фильм {} с id = {} удален", film.getName(), film.getId());
         return film;
     }

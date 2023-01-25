@@ -1,12 +1,12 @@
 package ru.yandex.practicum.storage.db;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.user.FriendConnection;
 import ru.yandex.practicum.model.user.User;
@@ -17,15 +17,11 @@ import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
-@Service
+@RequiredArgsConstructor
+@Slf4j
+@Component
 public class UserDbStorage implements UserStorage {
-
-    private static final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public User put(User user) {
