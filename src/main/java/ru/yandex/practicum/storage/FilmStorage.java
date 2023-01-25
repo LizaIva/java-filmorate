@@ -32,6 +32,8 @@ public interface FilmStorage {
 
     Film updateFilm (Film film);
 
+    List<Film> getCommonFilms(Integer userId, Integer friendId);
+
     public Film deleteById(int id);
 
     public void checkFilm(int id);

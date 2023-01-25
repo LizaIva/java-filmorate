@@ -16,10 +16,11 @@ import ru.yandex.practicum.storage.FilmStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmDbStorage implements FilmStorage {
@@ -111,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         if (film.getReleaseDate() != null) {
-            if(!args.isEmpty()) {
+            if (!args.isEmpty()) {
                 query.append(", ");
             }
             query.append("RELEASE_DATE = ?");
@@ -121,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         if (film.getDuration() != null) {
-            if(!args.isEmpty()) {
+            if (!args.isEmpty()) {
                 query.append(", ");
             }
             query.append("DURATION = ?");
@@ -130,7 +131,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         if (film.getMpa() != null) {
-            if(!args.isEmpty()) {
+            if (!args.isEmpty()) {
                 query.append(", ");
             }
 
@@ -260,6 +261,18 @@ public class FilmDbStorage implements FilmStorage {
                     return new MPA(rs.getInt("mpa_id"), rs.getString("name"));
                 },
                 categoryId);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String sqlQuery = "SELECT f.FILM_ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.NAME AS mpa_name " +
+                "FROM FILM AS f LEFT JOIN MPA AS m on m.MPA_ID = f.MPA_ID WHERE FILM_ID IN " +
+                "(SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ? AND FILM_ID IN " +
+                "(SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?));";
+
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilmData(rs), userId, friendId).stream()
+                .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
+                .collect(Collectors.toList());
     }
 
     private Film mapFilmData(ResultSet rs) throws SQLException {

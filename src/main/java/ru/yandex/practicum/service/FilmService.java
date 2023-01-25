@@ -93,6 +93,10 @@ public class FilmService {
         return filmStorage.getCategoryById(categoryId);
     }
 
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
     public Film deleteById(int id) {
         filmStorage.checkFilm(id);
         return filmStorage.deleteById(id);
