@@ -11,10 +11,7 @@ import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.FilmValidator;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -106,4 +103,23 @@ public class FilmService {
             return new ArrayList<>();
         }
     }
+
+    public List<Film> search(String query, String by) {
+        return filmStorage.search(query, by);
+    }
+
+    public static List<Film> sortByLikes(List<Film> films) { //вывод списка лучших фильмов
+        Collections.sort(films, new LikesFilmReverseComparator()); // отсортировали в обратном порядке по лайкам
+        return films;
+    }
+
+
 }
+
+class LikesFilmReverseComparator implements Comparator<Film> {// сортировка по лайкам в обратном порядке
+    @Override
+    public int compare(Film film1, Film film2) {
+        return -1 * Integer.valueOf(film1.getUserLikes().size()).compareTo((film2.getUserLikes().size()));
+    }
+}
+

@@ -79,5 +79,13 @@ public class FilmController {
         return filmService.deleteById(id);
     }
 
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam String query,
+                             @RequestParam String by) {
+        log.info("Получен запрос, чтобы выполнить поиcк фильма по подстроке {} по режиссеру(названию) {}.", query, by);
+        return filmService.search(query, by);
+    }
+
+
 }
 

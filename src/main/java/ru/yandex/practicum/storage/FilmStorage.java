@@ -42,4 +42,6 @@ public interface FilmStorage {
     public Film deleteById(int id);
 
     public void checkFilm(int id);
+
+    List<Film> search(String query, String by);
 }

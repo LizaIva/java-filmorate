@@ -12,6 +12,7 @@ import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
+import ru.yandex.practicum.service.FilmService;
 import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
 
@@ -346,4 +347,53 @@ public class FilmDbStorage implements FilmStorage {
             throw new UnknownDataException("Фильм c id = " + id + " не найден");
         }
     }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        query = query.toLowerCase(); // запрос и все названия в нижнем регистре
+        final String director = "director";
+        final String title = "title";
+        final String directorTitleVar1 = director + "," + title;
+        final String directorTitleVar2 = title + "," + director;
+
+        List<Film> allFilms = getAll();
+        HashSet<Film> result = new HashSet<>();
+
+        switch (by) {
+            case (director): // поиск по режиссёру
+                findFilmByDirector(allFilms, result, query);
+                break;
+            case (title): // поиск по названию
+                findFilmByTitle(allFilms, result, query);
+                break;
+            case (directorTitleVar1): // одновременно и по режиссеру и по названию
+            case (directorTitleVar2):
+                findFilmByDirector(allFilms, result, query);
+                findFilmByTitle(allFilms, result, query);
+                break;
+        }
+        return FilmService.sortByLikes(new ArrayList<>(result));
+    }
+
+    private void findFilmByDirector(List<Film> allFilms, HashSet<Film> result, String query) {
+        for (Film film : allFilms) {
+            List<Director> directors = film.getDirectors();
+            for (Director dir : directors) {
+                if (dir.getName().toLowerCase().contains(query)) {
+                    result.add(film);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void findFilmByTitle(List<Film> allFilms, HashSet<Film> result, String query) {
+        for (Film film : allFilms) {
+            if (film.getName().toLowerCase().contains(query))  {
+                result.add(film);
+            }
+        }
+    }
+
+
 }

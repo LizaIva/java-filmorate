@@ -10,7 +10,7 @@ public class FilmValidator {
 
     public static void validate(Film film) {
         if (film == null) {
-            throw new ValidationException("Отсутсвуют данные для создания фильма");
+            throw new ru.yandex.practicum.exception.ValidationException("Отсутсвуют данные для создания фильма");
         }
         validateName(film.getName());
         validateDescription(film.getDescription());
