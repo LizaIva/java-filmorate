@@ -1,21 +1,18 @@
 package ru.yandex.practicum.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserStorage userStorage;
-
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
 
     public User put(User user) {
         if (user == null) {
@@ -47,12 +44,20 @@ public class UserService {
         return userStorage.getAll();
     }
 
+    public User deleteById(int id) {
+        userStorage.checkUser(id);
+        return userStorage.deleteById(id);
+    }
 
     public void addFriends(int userId, int addedUserId) {
+        userStorage.checkUser(userId);
+        userStorage.checkUser(addedUserId);
         userStorage.addFriend(userId, addedUserId);
     }
 
     public void acceptFriendship(int userId, int friendId){
+        userStorage.checkUser(userId);
+        userStorage.checkUser(friendId);
         userStorage.acceptFriendship(userId, friendId);
     }
 
@@ -61,14 +66,20 @@ public class UserService {
     }
 
     public void removeFriends(int userId, int removedUserid) {
+        userStorage.checkUser(userId);
+        userStorage.checkUser(removedUserid);
         userStorage.removeFriend(userId, removedUserid);
     }
 
     public List<User> commonFriends(int userId1, int userId2) {
+        userStorage.checkUser(userId1);
+        userStorage.checkUser(userId2);
         return userStorage.foundCommonFriends(userId1, userId2);
     }
 
     public List<User> getAllFriends(int userId) {
+        userStorage.checkUser(userId);
        return userStorage.foundUserFriends(userId);
     }
+
 }

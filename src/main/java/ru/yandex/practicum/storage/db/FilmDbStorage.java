@@ -1,9 +1,12 @@
 package ru.yandex.practicum.storage.db;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
@@ -12,24 +15,17 @@ import ru.yandex.practicum.storage.FilmStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Slf4j
+@Component
+@RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
-
     private static final String UPDATE_FILM_TITLE_QUERY = "update film set TITLE = %s where FILM_ID = %d";
-
     private final JdbcTemplate jdbcTemplate;
-    private final UserDbStorage userDbStorage;
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDbStorage userDbStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userDbStorage = userDbStorage;
-    }
 
     @Override
     public Film put(Film film) {
@@ -163,6 +159,15 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Film deleteById(int id) {
+        Film film = get(id);
+        final String sqlDeleteQuery = "DELETE FROM FILM WHERE FILM_ID = ?";
+        jdbcTemplate.update(sqlDeleteQuery, id);
+        log.info("Фильм {} с id = {} удален", film.getName(), film.getId());
+        return film;
+    }
+
+    @Override
     public List<Film> getAll() {
         return jdbcTemplate.query("select *, M.NAME as mpa_name from film join MPA M on M.MPA_ID = FILM.MPA_ID",
                 (rs, rowNum) -> mapFilmData(rs)
@@ -171,9 +176,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(int filmId, int userId) {
-        userDbStorage.get(userId);
-        get(filmId);
-
         jdbcTemplate.update(
                 "INSERT INTO FILM_LIKES VALUES ( ?,? )",
                 filmId,
@@ -183,8 +185,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void deleteLike(int filmId, int userId) {
-        userDbStorage.get(userId);
-
         jdbcTemplate.update(
                 "DELETE FROM FILM_LIKES WHERE FILM_ID= ? AND USER_ID = ?",
                 filmId,
@@ -291,5 +291,15 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setGenres(filmGenres);
         return film;
+    }
+
+    @Override
+    public void checkFilm(int id) {
+        String checkQuery = "SELECT * FROM FILM WHERE FILM_ID = ?";
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkQuery, id);
+        if (!filmRows.next()) {
+            log.warn("Фильм с идентификатором {} не найден.", id);
+            throw new UnknownDataException("Фильм c id = " + id + " не найден");
+        }
     }
 }
