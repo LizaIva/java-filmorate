@@ -84,4 +84,8 @@ public class FilmService {
     public MPA getCategoryById(int categoryId) {
         return filmStorage.getCategoryById(categoryId);
     }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
 }
