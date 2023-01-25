@@ -1,7 +1,7 @@
 package ru.yandex.practicum.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
@@ -12,17 +12,13 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
+@RequiredArgsConstructor
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-
     private final FilmService filmService;
-
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
@@ -72,5 +68,18 @@ public class FilmController {
         log.info("Запрос всех фильмов режиссёра, отсортированных по {}", sortBy);
         return filmService.getFilmDirectorSortedBy(id, sortBy);
     }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam(name = "userId") Integer userId,
+                               @RequestParam(name = "friendId") Integer friendId) {
+        log.info("Получен запрос на получение списка общих фильмов у пользователей {} и {}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @DeleteMapping("/{id}")
+    public Film deleteById(@PathVariable int id) {
+        return filmService.deleteById(id);
+    }
+
 }
 

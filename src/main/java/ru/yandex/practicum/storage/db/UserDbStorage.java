@@ -1,9 +1,12 @@
 package ru.yandex.practicum.storage.db;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.user.FriendConnection;
 import ru.yandex.practicum.model.user.User;
@@ -14,14 +17,11 @@ import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
-@Service
+@RequiredArgsConstructor
+@Slf4j
+@Component
 public class UserDbStorage implements UserStorage {
-
     private final JdbcTemplate jdbcTemplate;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public User put(User user) {
@@ -122,6 +122,16 @@ public class UserDbStorage implements UserStorage {
         return foundUser;
     }
 
+    @Override
+    public User deleteById(int id) {
+        final String sqlDeleteQuery = "DELETE FROM users WHERE USER_ID = ?";
+        User user = get(id);
+        jdbcTemplate.update(sqlDeleteQuery, id);
+
+        log.info("запрос на удаление user с id = {} отправлен", id);
+        return user;
+    }
+
     private List<FriendConnection> findFriends(Integer id) {
         return jdbcTemplate.query(
                 "select us.friend_id, s.name from user_friends us JOIN status s ON us.status_id = s.STATUS_ID WHERE USER_ID = ?",
@@ -162,12 +172,8 @@ public class UserDbStorage implements UserStorage {
         );
     }
 
-
     @Override
     public void addFriend(int userId, int friendId) {
-        get(userId);
-        get(friendId);
-
         String sqlQuery = "insert into user_friends (user_id, friend_id) " +
                 "values (?, ?)";
 
@@ -180,12 +186,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void acceptFriendship(int userId, int friendId) {
-        User user = get(userId);
         User friend = get(friendId);
 
         boolean notFriend = true;
         for (FriendConnection friendConnection : friend.getFriends()) {
-            if (friendConnection.getFriendId() == user.getId()) {
+            if (friendConnection.getFriendId() == userId) {
                 notFriend = false;
                 break;
             }
@@ -290,5 +295,15 @@ public class UserDbStorage implements UserStorage {
 
         user.setId(rs.getInt("user_id"));
         return user;
+    }
+
+    @Override
+    public void checkUser(int id){
+        final String sqlCheckQuery = "SELECT * FROM users WHERE USER_ID = ?";
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlCheckQuery, id);
+        if (!userRows.next()) {
+            log.info("user с id = {} не найден.", id);
+            throw new UnknownDataException("user с id = " + id + " не найден.");
+        }
     }
 }

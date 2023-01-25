@@ -12,6 +12,8 @@ public interface UserStorage {
 
     User get(Integer id);
 
+    public User deleteById(int id);
+
     List<User> getUsersByIds(List<Integer> ids);
 
     List<User> getAll();
@@ -27,4 +29,6 @@ public interface UserStorage {
     List<User> foundUserFriends(int userId);
 
     String getStatusName(int statusId);
+
+    void checkUser(int id);
 }
