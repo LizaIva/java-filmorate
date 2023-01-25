@@ -105,7 +105,6 @@ public class FilmDbStorage implements FilmStorage {
                 queryBuilder.append(",");
             }
         }
-        System.out.println(listDirectors);
         jdbcTemplate.update(queryBuilder.toString());
         return listDirectors;
     }
