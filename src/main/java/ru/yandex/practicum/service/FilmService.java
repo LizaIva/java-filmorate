@@ -1,12 +1,8 @@
 package ru.yandex.practicum.service;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
@@ -102,9 +98,9 @@ public class FilmService {
 
     public List<Film> getFilmDirectorSortedBy(int directorId, String sortBy) {
         directorStorage.getDirector(directorId);
-        if (sortBy.equals("year")){
+        if (sortBy.equals("year")) {
             return filmStorage.getFilmsDirectorSortedByYear(directorId);
-        } else if (sortBy.equals("likes")){
+        } else if (sortBy.equals("likes")) {
             return filmStorage.getFilmsDirectorSortedByLikes(directorId);
         } else {
             return new ArrayList<>();

@@ -40,10 +40,10 @@ public class DirectorDbStorage implements DirectorStorage {
     public Director getDirector(int id) {
         String sqlQuery = "select * from director where director_id = ?";
         SqlRowSet directorRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
-        if(!directorRows.next()){
+        if (!directorRows.next()) {
             throw new UnknownDataException("Director с id = " + id + " не найден");
         }
-        return jdbcTemplate.queryForObject(sqlQuery,this::makeDirector, id);
+        return jdbcTemplate.queryForObject(sqlQuery, this::makeDirector, id);
     }
 
     @Override
@@ -76,20 +76,20 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public List<Director> getDirectorsByFilm(int id){
+    public List<Director> getDirectorsByFilm(int id) {
         String sqlQuery = "select * from director where director_id in (" +
                 "select director_id from film_director where film_id = ?)";
         return jdbcTemplate.query(sqlQuery, this::makeDirector, id);
     }
 
     @Override
-    public void addFilmDirector(int filmId, List<Director> list){
+    public void addFilmDirector(int filmId, List<Director> list) {
         String sqlQuery = "insert into film_director (film_id, director_id) " +
                 "values (?, ?)";
         if (list == null || list.isEmpty()) {
             return;
         }
-        for (Director director : list){
+        for (Director director : list) {
             jdbcTemplate.update(sqlQuery, filmId, director.getId());
         }
     }

@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Service;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.film.Director;
@@ -19,6 +17,7 @@ import ru.yandex.practicum.storage.FilmStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,8 +27,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
-    private static final String UPDATE_FILM_TITLE_QUERY = "update film set TITLE = %s where FILM_ID = %d";
     private final JdbcTemplate jdbcTemplate;
+    private final DirectorStorage directorStorage;
 
     @Override
     public Film put(Film film) {
@@ -283,7 +282,6 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY release_date";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilmData(rs), directorId);
     }
-
 
     @Override
     public List<Film> getFilmsDirectorSortedByLikes(int directorId){

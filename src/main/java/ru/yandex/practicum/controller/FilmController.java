@@ -3,9 +3,7 @@ package ru.yandex.practicum.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
-import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.service.FilmService;
 
 import javax.validation.Valid;

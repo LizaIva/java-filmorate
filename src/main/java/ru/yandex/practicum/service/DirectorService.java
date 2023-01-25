@@ -13,22 +13,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DirectorService {
     private final DirectorStorage directorStorage;
+
     public Director addDirector(Director director) {
         return directorStorage.addDirector(director);
     }
-    public Director getDirector(int id){
+
+    public Director getDirector(int id) {
         return directorStorage.getDirector(id);
     }
 
-    public List<Director> getAllDirectors(){
+    public List<Director> getAllDirectors() {
         return directorStorage.getAllDirector();
     }
 
-    public Director updateDirector(Director director){
+    public Director updateDirector(Director director) {
         return directorStorage.updateDirector(director);
     }
 
-    public int deleteDirector(int id){
+    public int deleteDirector(int id) {
         return directorStorage.deleteDirector(id);
     }
 }
