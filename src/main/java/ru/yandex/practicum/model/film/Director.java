@@ -6,8 +6,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Director {

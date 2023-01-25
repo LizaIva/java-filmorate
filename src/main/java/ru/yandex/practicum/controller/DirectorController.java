@@ -12,33 +12,34 @@ import java.util.List;
 @RestController
 @Slf4j
 @AllArgsConstructor
+@RequestMapping("/directors")
 public class DirectorController {
     private DirectorService directorService;
-    @PostMapping("/directors")
+    @PostMapping
     public Director add(@RequestBody @Valid Director director){
         log.info("Получен запрос на создание режессера {}", director.getName());
         return directorService.addDirector(director);
     }
 
-    @GetMapping("/directors/{id}")
+    @GetMapping("/{id}")
     public Director getById(@PathVariable Integer id){
         log.info("Получен запрос на получение режессера с id {}", id);
         return directorService.getDirector(id);
     }
 
-    @GetMapping("/directors")
+    @GetMapping
     public List<Director> findAll(){
         log.info("Получен запрос на получение всех режессеров");
         return directorService.getAllDirectors();
     }
 
-    @PutMapping("/directors")
+    @PutMapping
     public Director update(@RequestBody @Valid Director director){
         log.info("Получен запрос на обновление данных режессера с id {}", director.getId());
         return directorService.updateDirector(director);
     }
 
-    @DeleteMapping("/directors/{id}")
+    @DeleteMapping("/{id}")
     public int deleteById(@PathVariable Integer id){
         log.info("Получен запрос на удаление режессера с id {}", id);
         return directorService.deleteDirector(id);
