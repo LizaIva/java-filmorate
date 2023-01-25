@@ -1,22 +1,24 @@
 package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.exception.UnknownDataException;
+import ru.yandex.practicum.model.event.EventType;
+import ru.yandex.practicum.model.event.Operation;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
+import ru.yandex.practicum.storage.db.EventDbStorage;
 import ru.yandex.practicum.validation.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final EventDbStorage eventDbStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, EventDbStorage eventDbStorage) {
         this.userStorage = userStorage;
+        this.eventDbStorage = eventDbStorage;
     }
 
     public User put(User user) {
@@ -58,12 +60,14 @@ public class UserService {
         userStorage.checkUser(userId);
         userStorage.checkUser(addedUserId);
         userStorage.addFriend(userId, addedUserId);
+        eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.ADD, addedUserId);
     }
 
     public void acceptFriendship(int userId, int friendId){
         userStorage.checkUser(userId);
         userStorage.checkUser(friendId);
         userStorage.acceptFriendship(userId, friendId);
+        eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.UPDATE, friendId);
     }
 
     public String getStatusName(int statusId){
@@ -74,6 +78,7 @@ public class UserService {
         userStorage.checkUser(userId);
         userStorage.checkUser(removedUserid);
         userStorage.removeFriend(userId, removedUserid);
+        eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.REMOVE, removedUserid);
     }
 
     public List<User> commonFriends(int userId1, int userId2) {
