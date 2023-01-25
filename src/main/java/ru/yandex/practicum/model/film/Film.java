@@ -38,6 +38,8 @@ public class Film {
 
     private List<Genre> genres;
 
+    private List<Director> directors;
+
     public Film(String name, String description, LocalDate releaseDate, Integer duration, MPA mpa) {
         this.name = name;
         this.description = description;

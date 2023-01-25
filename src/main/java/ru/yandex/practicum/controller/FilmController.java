@@ -3,6 +3,7 @@ package ru.yandex.practicum.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.service.FilmService;
@@ -66,5 +67,10 @@ public class FilmController {
         return filmService.getTop(Integer.valueOf(count));
     }
 
+    @GetMapping("/director/{id}")
+    public List<Film> getFilmsSortedByDirector(@PathVariable Integer id, @RequestParam String sortBy){
+        log.info("Запрос всех фильмов режиссёра, отсортированных по {}", sortBy);
+        return filmService.getFilmDirectorSortedBy(id, sortBy);
+    }
 }
 
