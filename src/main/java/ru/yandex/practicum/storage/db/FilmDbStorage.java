@@ -16,11 +16,9 @@ import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,7 +45,7 @@ public class FilmDbStorage implements FilmStorage {
             ps.setInt(5, film.getMpa().getId());
             return ps;
         }, keyHolder);
-        film.setId(keyHolder.getKey().intValue());
+        film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
 
         putGenre(film.getId(), film.getGenres());
         film.setDirectors(putDirector(film.getId(), film.getDirectors()));
@@ -136,19 +134,15 @@ public class FilmDbStorage implements FilmStorage {
             filmForUpdate.setReleaseDate(film.getReleaseDate());
         }
 
-        if (film.getDuration() != null) {
-            if (!args.isEmpty()) {
-                query.append(", ");
-            }
-            query.append("DURATION = ?");
-            args.add(film.getDuration());
-            filmForUpdate.setDuration(film.getDuration());
+        if (!args.isEmpty()) {
+            query.append(", ");
         }
+        query.append("DURATION = ?");
+        args.add(film.getDuration());
+        filmForUpdate.setDuration(film.getDuration());
 
         if (film.getMpa() != null) {
-            if (!args.isEmpty()) {
-                query.append(", ");
-            }
+            query.append(", ");
 
             query.append("MPA_ID = ?");
             args.add(film.getMpa().getId());
@@ -156,12 +150,10 @@ public class FilmDbStorage implements FilmStorage {
             filmForUpdate.setMpa(film.getMpa());
         }
 
-        if (!args.isEmpty()) {
-            query.append(" where FILM_ID = ?");
-            args.add(film.getId());
+        query.append(" where FILM_ID = ?");
+        args.add(film.getId());
 
-            jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
-        }
+        jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
         filmForUpdate.setDirectors(putDirector(film.getId(), film.getDirectors()));
         return filmForUpdate;
     }

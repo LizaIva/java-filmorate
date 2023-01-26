@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.exception.UnknownDataException;
-import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 
 
 @SpringBootTest
@@ -88,14 +88,14 @@ class FilmoRateApplicationTests {
 
     @Test
     void wontPostReviewWithoutUser() {
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         Review postReview = new Review("asas",false, 1,1);
         assertThrows(UnknownDataException.class, () -> reviewService.postReview(postReview));
     }
 
     @Test
     void wontPostReviewWithoutFilm() {
-        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         Review postReview = new Review("asas",false, 1,1);
 
         assertThrows(UnknownDataException.class,() -> reviewService.postReview(postReview));
@@ -529,9 +529,9 @@ class FilmoRateApplicationTests {
         List<Film> filmList = filmService.findLimitPopularFilmsByGenreAndYear(3, 4, 1982);
 
         assertAll(
-                () -> assertEquals("Данные не верны", film2, filmList.get(0)),
-                () -> assertEquals("Данные не верны", 1, filmList.size())
-                );
+                () -> assertEquals(film2, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(1, filmList.size(), "Данные не верны")
+        );
     }
 
     @Test
@@ -555,8 +555,8 @@ class FilmoRateApplicationTests {
         List<Film> filmList = filmService.findPopularFilmsByYearAndGenre(2005, 2);
 
         assertAll(
-                () -> assertEquals("Данные не верны", film1, filmList.get(0)),
-                () -> assertEquals("Данные не верны", 1, filmList.size())
+                () -> assertEquals(film1, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(1, filmList.size(), "Данные не верны")
         );
     }
 
@@ -581,8 +581,8 @@ class FilmoRateApplicationTests {
         List<Film> filmList = filmService.findPopularFilmsByYear(2007);
 
         assertAll(
-                () -> assertEquals("Данные не верны", film3, filmList.get(0)),
-                () -> assertEquals("Данные не верны", 1, filmList.size())
+                () -> assertEquals(film3, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(1, filmList.size(), "Данные не верны")
         );
     }
 
@@ -608,9 +608,9 @@ class FilmoRateApplicationTests {
         List<Film> filmList = filmService.findPopularFilmsByGenre(6);
 
         assertAll(
-                () -> assertEquals("Данные не верны", film1, filmList.get(0)),
-                () -> assertEquals("Данные не верны", film2, filmList.get(1)),
-                () -> assertEquals("Данные не верны", 2, filmList.size())
+                () -> assertEquals(film1, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(film2, filmList.get(1), "Данные не верны"),
+                () -> assertEquals(2, filmList.size(), "Данные не верны")
         );
     }
 }
