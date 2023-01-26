@@ -84,4 +84,20 @@ public class FilmService {
     public MPA getCategoryById(int categoryId) {
         return filmStorage.getCategoryById(categoryId);
     }
+
+    public List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        return filmStorage.findLimitPopularFilmsByGenreAndYear(count, genreId, year);
+    }
+
+    public List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId) {
+        return filmStorage.findPopularFilmsByYearAndGenre(year, genreId);
+    }
+
+    public List<Film> findPopularFilmsByYear(Integer year) {
+        return filmStorage.findPopularFilmsByYear(year);
+    }
+
+    public List<Film> findPopularFilmsByGenre(Integer genreId) {
+        return filmStorage.findPopularFilmsByGenre(genreId);
+    }
 }

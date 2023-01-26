@@ -250,6 +250,79 @@ public class FilmDbStorage implements FilmStorage {
                 categoryId);
     }
 
+    @Override
+    public List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
+                "FROM film AS f " +
+                "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
+                "LEFT OUTER JOIN film_genre AS fg ON f.film_id = fg.film_id " +
+                "LEFT OUTER JOIN genre AS g ON fg.genre_id = g.genre_id " +
+                "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE fg.genre_id = ? AND EXTRACT(YEAR FROM f.release_date) = ? " +
+                "GROUP BY f.film_id, fg.genre_id " +
+                "ORDER BY COUNT(fl.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> mapFilmData(rs),
+                genreId, year, count
+        );
+    }
+
+    @Override
+    public List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId) {
+        String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
+                "FROM film AS f " +
+                "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
+                "LEFT OUTER JOIN film_genre AS fg ON f.film_id = fg.film_id " +
+                "LEFT OUTER JOIN genre AS g ON fg.genre_id = g.genre_id " +
+                "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE fg.genre_id = ? AND EXTRACT(YEAR FROM f.release_date) = ? " +
+                "GROUP BY f.film_id, fg.genre_id " +
+                "ORDER BY COUNT(fl.user_id) DESC";
+
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> mapFilmData(rs),
+                genreId, year
+        );
+    }
+
+    @Override
+    public List<Film> findPopularFilmsByYear(Integer year) {
+        String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
+                "FROM film AS f " +
+                "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
+                "LEFT OUTER JOIN film_genre AS fg ON f.film_id = fg.film_id " +
+                "LEFT OUTER JOIN genre AS g ON fg.genre_id = g.genre_id " +
+                "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE EXTRACT(YEAR FROM f.release_date) = ? " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(fl.user_id) DESC";
+
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> mapFilmData(rs),
+                year
+        );
+    }
+
+    @Override
+    public List<Film> findPopularFilmsByGenre(Integer genreId) {
+        String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
+                "FROM film AS f " +
+                "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
+                "LEFT OUTER JOIN film_genre AS fg ON f.film_id = fg.film_id " +
+                "LEFT OUTER JOIN genre AS g ON fg.genre_id = g.genre_id " +
+                "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE fg.genre_id = ? " +
+                "GROUP BY f.film_id, fg.genre_id " +
+                "ORDER BY COUNT(fl.user_id) DESC";
+
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> mapFilmData(rs),
+                genreId
+        );
+    }
+
     private Film mapFilmData(ResultSet rs) throws SQLException {
         Film film = new Film(
                 rs.getString("title"),

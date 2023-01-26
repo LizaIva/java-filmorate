@@ -31,4 +31,11 @@ public interface FilmStorage {
     void updateGenre(int filmId, List<Genre> genreIds);
 
     Film updateFilm (Film film);
+
+    List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year);
+
+    List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId);
+    List<Film> findPopularFilmsByYear(Integer year);
+
+    List<Film> findPopularFilmsByGenre(Integer genreId);
 }
