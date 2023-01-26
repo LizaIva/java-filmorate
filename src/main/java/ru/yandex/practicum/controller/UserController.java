@@ -1,7 +1,7 @@
 package ru.yandex.practicum.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.service.UserService;
@@ -9,18 +9,13 @@ import ru.yandex.practicum.service.UserService;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
-
+@RequiredArgsConstructor
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
@@ -80,5 +75,10 @@ public class UserController {
     public String getStatusName(@PathVariable Integer statusId) {
         log.info("Получение названия статуса дружбы.");
         return userService.getStatusName(statusId);
+    }
+
+    @DeleteMapping("/{id}")
+    public User deleteById(@PathVariable int id) {
+        return userService.deleteById(id);
     }
 }

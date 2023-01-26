@@ -1,12 +1,14 @@
 package ru.yandex.practicum.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
+import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
+import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.FilmValidator;
 
 import java.util.ArrayList;
@@ -14,21 +16,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class FilmService {
-
-    private static final Logger log = LoggerFactory.getLogger(FilmService.class);
-
     private final FilmStorage filmStorage;
-
-
-    public FilmService(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
-    }
+    private final DirectorStorage directorStorage;
+    private final UserStorage userStorage;
 
     public Film put(Film film) {
         deduplicateGenres(film);
-
         return filmStorage.put(film);
     }
 
@@ -58,10 +55,14 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
+        filmStorage.checkFilm(filmId);
+        userStorage.checkUser(userId);
         filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
+        filmStorage.checkFilm(filmId);
+        userStorage.checkUser(userId);
         filmStorage.deleteLike(filmId, userId);
     }
 
@@ -83,6 +84,26 @@ public class FilmService {
 
     public MPA getCategoryById(int categoryId) {
         return filmStorage.getCategoryById(categoryId);
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public Film deleteById(int id) {
+        filmStorage.checkFilm(id);
+        return filmStorage.deleteById(id);
+    }
+
+    public List<Film> getFilmDirectorSortedBy(int directorId, String sortBy) {
+        directorStorage.getDirector(directorId);
+        if (sortBy.equals("year")) {
+            return filmStorage.getFilmsDirectorSortedByYear(directorId);
+        } else if (sortBy.equals("likes")) {
+            return filmStorage.getFilmsDirectorSortedByLikes(directorId);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
