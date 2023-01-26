@@ -1,10 +1,12 @@
 package ru.yandex.practicum.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
+import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.FilmValidator;
@@ -14,10 +16,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final DirectorStorage directorStorage;
     private final UserStorage userStorage;
 
     public Film put(Film film) {
@@ -90,5 +94,16 @@ public class FilmService {
     public Film deleteById(int id) {
         filmStorage.checkFilm(id);
         return filmStorage.deleteById(id);
+    }
+
+    public List<Film> getFilmDirectorSortedBy(int directorId, String sortBy) {
+        directorStorage.getDirector(directorId);
+        if (sortBy.equals("year")) {
+            return filmStorage.getFilmsDirectorSortedByYear(directorId);
+        } else if (sortBy.equals("likes")) {
+            return filmStorage.getFilmsDirectorSortedByLikes(directorId);
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

@@ -298,7 +298,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void checkUser(int id){
+    public void checkUser(int id) {
         final String sqlCheckQuery = "SELECT * FROM users WHERE USER_ID = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlCheckQuery, id);
         if (!userRows.next()) {
