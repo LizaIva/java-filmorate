@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.film.Review;
 import ru.yandex.practicum.storage.FilmStorage;
+import ru.yandex.practicum.storage.ReviewStorage;
 import ru.yandex.practicum.storage.UserStorage;
-import ru.yandex.practicum.validation.ReviewValidator;
 
 import java.sql.PreparedStatement;
 import java.util.Comparator;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-public class ReviewDbStorage {
+public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
 
     private final UserStorage userStorage;
@@ -32,6 +32,7 @@ public class ReviewDbStorage {
         this.filmStorage = filmStorage;
     }
 
+    @Override
     public Review addReview(Review review) {
         userStorage.get(review.getUserId());//проверка на существование пользователя
         filmStorage.get(review.getFilmId());//проверка на существование фильма
@@ -50,6 +51,7 @@ public class ReviewDbStorage {
         return review;
     }
 
+    @Override
     public Review updateReview(Review review) {
         int rows = jdbcTemplate.update("update reviews set content = ?, is_positive = ?  where review_id = ?",
                 review.getContent(),
@@ -62,6 +64,7 @@ public class ReviewDbStorage {
         }
     }
 
+    @Override
     public Review getReviewById(Integer id) {
         SqlRowSet sql = jdbcTemplate.queryForRowSet("select * from reviews where review_id = ?", id);
         if (sql.next()) {
@@ -82,6 +85,7 @@ public class ReviewDbStorage {
 
     }
 
+    @Override
     public String deleteReviewById(Integer id) {
         if (Optional.of(getReviewById(id)).isPresent()) {
             jdbcTemplate.update("delete from reviews where review_id = ?", id);
@@ -91,24 +95,26 @@ public class ReviewDbStorage {
         }
     }
 
+    @Override
     public Review addLikeToReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
-        userStorage.get(userId);//проверяем есть ли такие айдишники, если нет - выкинет исключение
+        userStorage.checkUser(userId);//проверяем есть ли такие айдишники, если нет - выкинет исключение
         jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?)", reviewId, userId, 1);
         jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL+1 where REVIEW_ID = ?", reviewId);
         getReviewById(reviewId).setUseful(getReviewById(reviewId).getReviewId() + 1);
         return getReviewById(reviewId);
     }
 
+    @Override
     public Review addDislikeToReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
-        userStorage.get(userId);//проверяем есть ли такие айдишники, если нет - выкинет исключение
+        userStorage.checkUser(userId);//проверяем есть ли такие айдишники, если нет - выкинет исключение
         jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?)", reviewId, userId, 2);
         jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId);
         getReviewById(reviewId).setUseful(getReviewById(reviewId).getReviewId() - 1);
         return getReviewById(reviewId);
     }
-
+    @Override
     public Review deleteLikeFromReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
         userStorage.get(userId);
@@ -116,7 +122,7 @@ public class ReviewDbStorage {
         jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId);
         return getReviewById(reviewId);
     }
-
+    @Override
     public Review deleteDislikeFromReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
         userStorage.get(userId);
@@ -125,6 +131,7 @@ public class ReviewDbStorage {
         return getReviewById(reviewId);
     }
 
+    @Override
     public List<Review> getAllReviews(Integer filmId, Integer count) {
         if (filmId == 0) {
             return jdbcTemplate.query("select * from reviews limit (?)",
