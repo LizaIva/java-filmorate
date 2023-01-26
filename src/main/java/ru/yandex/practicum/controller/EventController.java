@@ -1,5 +1,7 @@
 package ru.yandex.practicum.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,20 +14,17 @@ import ru.yandex.practicum.model.event.Event;
 import java.util.List;
 
 
+@Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users/{id}/feed")
 public class EventController {
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
 
     private final EventService eventService;
 
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
-
     @GetMapping
-    public List<Event> getEvents(@PathVariable Integer userId) {
-        log.info("Получен запрос ленты событий по id пользователя {}.", userId);
-        return eventService.getEvents(userId);
+    public List<Event> getEvents(@PathVariable Integer id) {
+        log.info("Получен запрос ленты событий по id пользователя {}.", id);
+        return eventService.getEvents(id);
     }
 }

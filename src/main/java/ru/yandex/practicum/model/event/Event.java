@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class Event {
     private Integer eventId;
-    private Integer timestamp;
+    private Long timestamp;
 
     private Integer userId;
 
@@ -16,7 +16,12 @@ public class Event {
 
     private Integer entityId;
 
-    public Event(int timestamp, int userId, EventType eventType, Operation operation, int entityId) {
+    public Event(long timestamp, int userId, EventType eventType, Operation operation, int entityId) {
+        this.timestamp = timestamp;
+        this.userId = userId;
+        this.eventType = eventType;
+        this.operation = operation;
+        this.entityId = entityId;
     }
 }
 

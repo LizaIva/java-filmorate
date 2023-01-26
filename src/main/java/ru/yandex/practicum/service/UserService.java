@@ -16,12 +16,8 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
-    private final EventDbStorage eventDbStorage;
+    private final EventService eventService;
 
-    public UserService(UserStorage userStorage, EventDbStorage eventDbStorage) {
-        this.userStorage = userStorage;
-        this.eventDbStorage = eventDbStorage;
-    }
 
     public User put(User user) {
         if (user == null) {
@@ -62,14 +58,14 @@ public class UserService {
         userStorage.checkUser(userId);
         userStorage.checkUser(addedUserId);
         userStorage.addFriend(userId, addedUserId);
-        eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.ADD, addedUserId);
+        eventService.putEvent(userId, EventType.FRIEND, Operation.ADD, addedUserId);
     }
 
     public void acceptFriendship(int userId, int friendId) {
         userStorage.checkUser(userId);
         userStorage.checkUser(friendId);
         userStorage.acceptFriendship(userId, friendId);
-        eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.UPDATE, friendId);
+        eventService.putEvent(userId, EventType.FRIEND, Operation.UPDATE, friendId);
     }
 
     public String getStatusName(int statusId) {
@@ -80,7 +76,7 @@ public class UserService {
         userStorage.checkUser(userId);
         userStorage.checkUser(removedUserid);
         userStorage.removeFriend(userId, removedUserid);
-        eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.REMOVE, removedUserid);
+        eventService.putEvent(userId, EventType.FRIEND, Operation.REMOVE, removedUserid);
     }
 
     public List<User> commonFriends(int userId1, int userId2) {

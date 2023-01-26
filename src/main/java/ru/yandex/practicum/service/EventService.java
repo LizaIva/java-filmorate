@@ -1,27 +1,30 @@
 package ru.yandex.practicum.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.model.event.Event;
-import ru.yandex.practicum.storage.db.EventDbStorage;
-import ru.yandex.practicum.storage.db.UserDbStorage;
+import ru.yandex.practicum.model.event.EventType;
+import ru.yandex.practicum.model.event.Operation;
+import ru.yandex.practicum.storage.EventStorage;
+import ru.yandex.practicum.storage.UserStorage;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class EventService {
 
-    private final EventDbStorage eventDbStorage;
-    private final UserDbStorage userDbStorage;
+    private final EventStorage eventStorage;
+    private final UserStorage userDbStorage;
 
-    public EventService(EventDbStorage eventDbStorage, UserDbStorage userDbStorage) {
-        this.eventDbStorage = eventDbStorage;
-        this.userDbStorage = userDbStorage;
+
+    public List<Event> getEvents(Integer userId) {
+        userDbStorage.checkUser(userId);
+        return eventStorage.getEvents(userId);
     }
 
-
-    public List<Event> getEvents(Integer userId){
-        userDbStorage.checkUser(userId);
-        return eventDbStorage.getEvents(userId);
+    public void putEvent(Integer userId, EventType eventType, Operation operation, Integer entityId) {
+        eventStorage.putEvent(userId, eventType, operation, entityId);
     }
 
 }
