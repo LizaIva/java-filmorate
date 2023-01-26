@@ -1,5 +1,6 @@
 package ru.yandex.practicum.storage;
 
+import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
@@ -30,7 +31,11 @@ public interface FilmStorage {
 
     void updateGenre(int filmId, List<Genre> genreIds);
 
-    Film updateFilm (Film film);
+    Film updateFilm(Film film);
+
+    List<Film> getFilmsDirectorSortedByYear(int directorId);
+
+    List<Film> getFilmsDirectorSortedByLikes(int directorId);
 
     List<Film> getCommonFilms(Integer userId, Integer friendId);
 

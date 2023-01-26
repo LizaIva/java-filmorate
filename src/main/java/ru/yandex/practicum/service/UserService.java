@@ -55,13 +55,13 @@ public class UserService {
         userStorage.addFriend(userId, addedUserId);
     }
 
-    public void acceptFriendship(int userId, int friendId){
+    public void acceptFriendship(int userId, int friendId) {
         userStorage.checkUser(userId);
         userStorage.checkUser(friendId);
         userStorage.acceptFriendship(userId, friendId);
     }
 
-    public String getStatusName(int statusId){
+    public String getStatusName(int statusId) {
         return userStorage.getStatusName(statusId);
     }
 
@@ -79,7 +79,7 @@ public class UserService {
 
     public List<User> getAllFriends(int userId) {
         userStorage.checkUser(userId);
-       return userStorage.foundUserFriends(userId);
+        return userStorage.foundUserFriends(userId);
     }
 
 }
