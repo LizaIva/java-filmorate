@@ -61,6 +61,60 @@ class FilmoRateApplicationTests {
     }
 
     @Test
+    void shouldPutReview(){
+        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        int userId = userPut.getId();
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        int filmId = putFilm.getId();
+        Review postReview = reviewService.postReview(new Review("asas",false, userId,filmId));
+        Review review = reviewService.getReview(postReview.getReviewId());
+
+        assertEquals(postReview.getReviewId(), review.getReviewId());
+        assertEquals(postReview.getContent(), review.getContent());
+        assertEquals(postReview.getFilmId(),review.getFilmId());
+    }
+
+    @Test
+    void shouldThrowErrorAndGetReviewById(){
+        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        int userId = userPut.getId();
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        int filmId = putFilm.getId();
+        Review postReview = reviewService.postReview(new Review("asas",false, userId,filmId));
+
+        assertEquals(postReview.getReviewId(), reviewService.getReview(postReview.getReviewId()).getReviewId());
+        assertThrows(UnknownDataException.class, () -> reviewService.getReview(1000));
+    }
+
+    @Test
+    void wontPostReviewWithoutUser() {
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        Review postReview = new Review("asas",false, 1,1);
+        assertThrows(UnknownDataException.class, () -> reviewService.postReview(postReview));
+    }
+
+    @Test
+    void wontPostReviewWithoutFilm() {
+        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        Review postReview = new Review("asas",false, 1,1);
+
+        assertThrows(UnknownDataException.class,() -> reviewService.postReview(postReview));
+    }
+
+    @Test
+    void shouldDeleteReview() {
+        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        int userId = userPut.getId();
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        int filmId = putFilm.getId();
+        Review postReview = reviewService.postReview(new Review("asas",false, userId,filmId));
+
+        reviewService.deleteReview(postReview.getReviewId());
+
+        assertThrows(UnknownDataException.class, () -> reviewService.getReview(postReview.getReviewId()));
+    }
+
+    @Test
     public void putUserWithoutNameTest() {
         User userPut = userService.put(new User("alala@test.t", "lalala", "", LocalDate.now()));
         int userId = userPut.getId();
@@ -454,53 +508,7 @@ class FilmoRateApplicationTests {
         assertThrows(UnknownDataException.class, () -> filmService.getCategoryById(10));
     }
 
-    @Test
-    void shouldPutReview(){
-        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
-        Review postReview = reviewService.postReview(new Review("asas",false, 1,1));
-        Review review = reviewService.getReview(postReview.getReviewId());
 
-        assertEquals(postReview.getReviewId(), review.getReviewId());
-        assertEquals(postReview.getContent(), review.getContent());
-        assertEquals(postReview.getFilmId(),review.getFilmId());
-    }
-
-    @Test
-    void shouldThrowErrorAndGetReviewById(){
-        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
-        Review postReview = reviewService.postReview(new Review("asas",false, 1,1));
-
-        assertEquals(postReview.getReviewId(), reviewService.getReview(postReview.getReviewId()).getReviewId());
-        assertThrows(UnknownDataException.class, () -> reviewService.getReview(1000));
-    }
-
-    @Test
-    void wontPostReviewWithoutUser() {
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
-        Review postReview = new Review("asas",false, 1,1);
-        assertThrows(UnknownDataException.class, () -> reviewService.postReview(postReview));
-    }
-
-    @Test
-    void wontPostReviewWithoutFilm() {
-        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
-        Review postReview = new Review("asas",false, 1,1);
-
-        assertThrows(UnknownDataException.class,() -> reviewService.postReview(postReview));
-    }
-
-    @Test
-    void shouldDeleteReview() {
-        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
-        Review postReview = reviewService.postReview(new Review("asas",false, 1,1));
-
-        reviewService.deleteReview(postReview.getReviewId());
-
-        assertThrows(UnknownDataException.class, () -> reviewService.getReview(postReview.getReviewId()));
-    }
 
 
 }
