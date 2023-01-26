@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.event.EventType;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.validation.UserValidator;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserStorage userStorage;
@@ -63,14 +65,14 @@ public class UserService {
         eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.ADD, addedUserId);
     }
 
-    public void acceptFriendship(int userId, int friendId){
+    public void acceptFriendship(int userId, int friendId) {
         userStorage.checkUser(userId);
         userStorage.checkUser(friendId);
         userStorage.acceptFriendship(userId, friendId);
         eventDbStorage.putEvent(userId, EventType.FRIEND, Operation.UPDATE, friendId);
     }
 
-    public String getStatusName(int statusId){
+    public String getStatusName(int statusId) {
         return userStorage.getStatusName(statusId);
     }
 
@@ -89,7 +91,7 @@ public class UserService {
 
     public List<User> getAllFriends(int userId) {
         userStorage.checkUser(userId);
-       return userStorage.foundUserFriends(userId);
+        return userStorage.foundUserFriends(userId);
     }
 
 }
