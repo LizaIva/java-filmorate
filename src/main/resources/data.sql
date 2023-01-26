@@ -16,3 +16,7 @@ VALUES (1, 'G'),
 MERGE INTO status (status_id, name)
 VALUES (0, 'accepted'),
        (1, 'not accepted');
+
+MERGE INTO like_type(like_id, name)
+VALUES (1, 'like'),
+       (2, 'dislike');

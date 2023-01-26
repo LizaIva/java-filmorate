@@ -26,7 +26,6 @@ public class FilmService {
 
     public Film put(Film film) {
         deduplicateGenres(film);
-
         return filmStorage.put(film);
     }
 
