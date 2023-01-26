@@ -90,8 +90,6 @@ CREATE TABLE IF NOT EXISTS review_likes
     like_type integer,
     FOREIGN KEY (like_type) REFERENCES like_type (like_id) ON DELETE CASCADE
 );
-);
-
 
 CREATE TABLE IF NOT EXISTS director
 (
