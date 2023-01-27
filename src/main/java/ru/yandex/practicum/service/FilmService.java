@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.model.event.EventType;
 import ru.yandex.practicum.model.event.Operation;
+import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
@@ -13,10 +14,7 @@ import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.FilmValidator;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -109,5 +107,65 @@ public class FilmService {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        query = query.toLowerCase();
+        final String director = "director";
+        final String title = "title";
+        final String directorTitleVar1 = "director" + "," + "title";
+        final String directorTitleVar2 = "title" + "," + "director";
+        List<Film> allFilms = filmStorage.getAll();
+        HashSet<Film> result = new HashSet<>();
+        switch (by) {
+            case (director):
+                findFilmByDirector(allFilms, result, query);
+                break;
+            case (title):
+                findFilmByTitle(allFilms, result, query);
+                break;
+            case (directorTitleVar1):
+            case (directorTitleVar2):
+                findFilmByTitle(allFilms, result, query);
+                findFilmByDirector(allFilms, result, query);
+                break;
+        }
+        return filmsSortedByLikes(new ArrayList<>(result));
+    }
+
+    public static List<Film> filmsSortedByLikes(List<Film> films) { // сортировка фильма по лайкам
+        Collections.sort(films, new LikesFilmReverseComparator());
+        return films;
+    }
+
+
+    private void findFilmByDirector(List<Film> allFilms, HashSet<Film> result, String query) {
+        for (Film film :
+                allFilms) {
+            for (Director dir : film.getDirectors()) {
+                if (dir.getName().toLowerCase().contains(query)) {
+                    result.add(film);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void findFilmByTitle(List<Film> allFilms, HashSet<Film> result, String query) {
+        for (Film film :
+                allFilms) {
+            if (film.getName().toLowerCase().contains(query)) {
+                result.add(film);
+            }
+        }
+    }
+
+
+}
+
+class LikesFilmReverseComparator implements Comparator<Film> {// сортировка по лайкам в обратном порядке
+    @Override
+    public int compare(Film film1, Film film2) {
+        return -1 * Integer.valueOf(film1.getUserLikes().size()).compareTo((film2.getUserLikes().size()));
     }
 }
