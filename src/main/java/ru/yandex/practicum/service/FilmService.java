@@ -118,6 +118,7 @@ public class FilmService {
 
     public List<Film> findPopularFilmsByGenre(Integer genreId) {
         return filmStorage.findPopularFilmsByGenre(genreId);
+    }
 
     public List<Film> searchFilms(String query, String by) {
         query = query.toLowerCase();
