@@ -34,7 +34,7 @@ public class EventDbStorage implements EventStorage {
                         "select * " +
                         "from EVENT_FEED " +
                         "where user_id in (select friend_id from USER_FRIENDS where USER_FRIENDS.USER_ID = ?) " +
-                        "ORDER BY TIMESTAMP DESC;",
+                        "ORDER BY TIMESTAMP;",
                 (rs, rowNum) -> mapEventData(rs),
                 userId,
                 userId
