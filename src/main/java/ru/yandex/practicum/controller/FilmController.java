@@ -73,11 +73,18 @@ public class FilmController {
         log.info("Получен запрос на получение списка общих фильмов у пользователей {} и {}", userId, friendId);
         return filmService.getCommonFilms(userId, friendId);
     }
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam String query,
+                                  @RequestParam String by){
+        log.info("Получен запрос на получение списка фильмов по запросу {} и {}", query, by);
+        return filmService.searchFilms(query, by);
+    }
 
     @DeleteMapping("/{id}")
     public Film deleteById(@PathVariable int id) {
         return filmService.deleteById(id);
     }
+
 
 }
 
