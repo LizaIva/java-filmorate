@@ -26,14 +26,14 @@ public class ReviewService {
     public Review postReview(Review review) {
         reviewValidator.validate(review);
         Review createdReview = reviewDbStorage.addReview(review);
-        eventService.putEvent(createdReview.getUserId(), EventType.REVIEW, Operation.ADD, createdReview.getFilmId());
+        eventService.putEvent(createdReview.getUserId(), EventType.REVIEW, Operation.ADD, createdReview.getReviewId());
         return createdReview;
     }
 
     public Review putReview(Review review) {
         reviewValidator.validate(review);
         Review updatedReview = reviewDbStorage.updateReview(review);
-        eventService.putEvent(updatedReview.getUserId(), EventType.REVIEW, Operation.UPDATE, updatedReview.getFilmId());
+        eventService.putEvent(updatedReview.getUserId(), EventType.REVIEW, Operation.UPDATE, updatedReview.getReviewId());
         return updatedReview;
     }
 
@@ -64,6 +64,6 @@ public class ReviewService {
     }
 
     public Review deleteDislike(int reviewId, int userId) {
-        return reviewDbStorage.deleteDislikeFromReview(reviewId,userId);
+        return reviewDbStorage.deleteDislikeFromReview(reviewId, userId);
     }
 }

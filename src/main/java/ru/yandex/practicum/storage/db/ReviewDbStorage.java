@@ -115,6 +115,7 @@ public class ReviewDbStorage implements ReviewStorage {
         getReviewById(reviewId).setUseful(getReviewById(reviewId).getReviewId() - 1);
         return getReviewById(reviewId);
     }
+
     @Override
     public Review deleteLikeFromReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
@@ -123,6 +124,7 @@ public class ReviewDbStorage implements ReviewStorage {
         jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId);
         return getReviewById(reviewId);
     }
+
     @Override
     public Review deleteDislikeFromReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
@@ -136,15 +138,15 @@ public class ReviewDbStorage implements ReviewStorage {
     public List<Review> getAllReviews(Integer filmId, Integer count) {
         if (filmId == 0) {
             return jdbcTemplate.query("select * from reviews limit (?)",
-                    new Object[]{count},
-                    new BeanPropertyRowMapper<>(Review.class))
+                            new Object[]{count},
+                            new BeanPropertyRowMapper<>(Review.class))
                     .stream()
                     .sorted(Comparator.comparingInt(Review::getUseful).reversed())
                     .collect(Collectors.toList());
         } else {
             return jdbcTemplate.query("select * from reviews where film_id = ? limit (?)",
-                    new Object[]{filmId, count},
-                    new BeanPropertyRowMapper<>(Review.class)).stream()
+                            new Object[]{filmId, count},
+                            new BeanPropertyRowMapper<>(Review.class)).stream()
                     .sorted(Comparator.comparingInt(Review::getUseful).reversed()).collect(Collectors.toList());
         }
     }
