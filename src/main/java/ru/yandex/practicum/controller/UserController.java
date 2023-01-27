@@ -2,7 +2,16 @@ package ru.yandex.practicum.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.service.UserService;
 
@@ -27,7 +36,6 @@ public class UserController {
         log.info("Произошло создание пользователя");
         return userService.put(user);
     }
-
 
     @PutMapping
     public User update(@RequestBody User user) {
@@ -80,5 +88,11 @@ public class UserController {
     public String getStatusName(@PathVariable Integer statusId) {
         log.info("Получение названия статуса дружбы.");
         return userService.getStatusName(statusId);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable(name = "id") Integer id) {
+        log.info("Получен запрос на генерацию рекомендаций.");
+        return userService.getRecommendations(id);
     }
 }

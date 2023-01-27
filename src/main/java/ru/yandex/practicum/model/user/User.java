@@ -9,15 +9,14 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @EqualsAndHashCode(exclude = "friends")
 public class User {
 
     private Integer id;
+
     @NotEmpty(message = "Email не может быть пустым")
     @Email(message = "Введнный email не правильного формата")
     private String email;
@@ -36,5 +35,4 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
-
 }

@@ -5,11 +5,17 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
+import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.FriendConnection;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
@@ -213,18 +219,8 @@ public class UserDbStorage implements UserStorage {
     public void removeFriend(int userId, int friendId) {
         String sqlQuery = "delete from user_friends where user_id = ? AND friend_id = ?";
 
-        jdbcTemplate.update(
-                sqlQuery,
-                userId,
-                friendId
-        );
-
-        jdbcTemplate.update(
-                sqlQuery,
-                friendId,
-                userId
-        );
-
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+        jdbcTemplate.update(sqlQuery, friendId, userId);
     }
 
     @Override
@@ -271,6 +267,35 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.queryForObject(sqlQuery, String.class, statusId);
     }
 
+    @Override
+    public List<Film> getRecommendations(Integer userId) {
+        User user = get(userId);
+        List<User> allUsers = getAll();
+
+        int maxMatch = 0;
+        Integer similarUserId = null;
+
+        for (User otherUser : allUsers) {
+            if (!otherUser.equals(user)) {
+                List<Integer> overlap = getLikedFilmsIds(userId);
+
+                overlap.retainAll(getLikedFilmsIds(otherUser.getId()));
+
+                if (overlap.size() > maxMatch) {
+                    maxMatch = overlap.size();
+                    similarUserId = otherUser.getId();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private List<Integer> getLikedFilmsIds(Integer userId) {
+        String sqlQuery = "SELECT film_id FROM film_likes WHERE user_id = ?;";
+
+        return jdbcTemplate.queryForList(sqlQuery, Integer.class, userId);
+    }
 
     private static String repeat(int times, String delimiter) {
         if (times == 1) {

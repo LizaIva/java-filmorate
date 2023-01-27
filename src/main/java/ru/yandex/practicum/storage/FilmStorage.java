@@ -30,5 +30,5 @@ public interface FilmStorage {
 
     void updateGenre(int filmId, List<Genre> genreIds);
 
-    Film updateFilm (Film film);
+    Film updateFilm(Film film);
 }

@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.film.Film;
-import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.service.FilmService;
 
 import javax.validation.Valid;
@@ -34,7 +33,6 @@ public class FilmController {
         return filmService.update(film);
     }
 
-
     @GetMapping
     public Collection<Film> findAllFilms() {
         log.info("Получен запрос списка всех фильмов.");
@@ -46,7 +44,6 @@ public class FilmController {
         log.info("Получен запрос фильма по id.");
         return filmService.get(Integer.valueOf(id));
     }
-
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
@@ -65,6 +62,5 @@ public class FilmController {
         log.info("Получен запрос на вывод топ {} фильмов", count);
         return filmService.getTop(Integer.valueOf(count));
     }
-
 }
 

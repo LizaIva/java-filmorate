@@ -2,11 +2,11 @@ package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
+import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -52,11 +52,11 @@ public class UserService {
         userStorage.addFriend(userId, addedUserId);
     }
 
-    public void acceptFriendship(int userId, int friendId){
+    public void acceptFriendship(int userId, int friendId) {
         userStorage.acceptFriendship(userId, friendId);
     }
 
-    public String getStatusName(int statusId){
+    public String getStatusName(int statusId) {
         return userStorage.getStatusName(statusId);
     }
 
@@ -69,6 +69,10 @@ public class UserService {
     }
 
     public List<User> getAllFriends(int userId) {
-       return userStorage.foundUserFriends(userId);
+        return userStorage.foundUserFriends(userId);
+    }
+
+    public List<Film> getRecommendations(Integer userId) {
+        return userStorage.getRecommendations(userId);
     }
 }
