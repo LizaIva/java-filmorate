@@ -1,6 +1,8 @@
 package ru.yandex.practicum.model.event;
 
 import lombok.Data;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 
 
 @Data

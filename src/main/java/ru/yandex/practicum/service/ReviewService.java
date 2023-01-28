@@ -1,8 +1,8 @@
 package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.model.event.EventType;
-import ru.yandex.practicum.model.event.Operation;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Review;
 import ru.yandex.practicum.storage.db.ReviewDbStorage;
 import ru.yandex.practicum.validation.ReviewValidator;

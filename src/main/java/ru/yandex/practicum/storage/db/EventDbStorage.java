@@ -3,8 +3,8 @@ package ru.yandex.practicum.storage.db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.model.event.EventType;
-import ru.yandex.practicum.model.event.Operation;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.event.Event;
 import ru.yandex.practicum.storage.EventStorage;
 

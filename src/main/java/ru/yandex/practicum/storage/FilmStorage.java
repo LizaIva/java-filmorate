@@ -39,7 +39,9 @@ public interface FilmStorage {
 
     List<Film> getCommonFilms(Integer userId, Integer friendId);
 
-    public Film deleteById(int id);
+    Film deleteById(int id);
 
-    public void checkFilm(int id);
+    void checkFilm(int id);
+
+    boolean isLikeExists ( int filmId, int userId);
 }

@@ -3,11 +3,10 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
-import ru.yandex.practicum.model.event.EventType;
-import ru.yandex.practicum.model.event.Operation;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
-import ru.yandex.practicum.storage.db.EventDbStorage;
 import ru.yandex.practicum.validation.UserValidator;
 
 import java.util.List;

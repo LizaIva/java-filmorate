@@ -1,8 +1,8 @@
 package ru.yandex.practicum.storage;
 
 import ru.yandex.practicum.model.event.Event;
-import ru.yandex.practicum.model.event.EventType;
-import ru.yandex.practicum.model.event.Operation;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 
 import java.util.List;
 

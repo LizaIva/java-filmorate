@@ -1,4 +1,4 @@
-package ru.yandex.practicum.model.event;
+package ru.yandex.practicum.model.event.constants;
 
 public enum Operation {
     REMOVE,
