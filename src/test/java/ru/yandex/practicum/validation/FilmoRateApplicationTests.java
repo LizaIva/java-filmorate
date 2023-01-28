@@ -587,6 +587,7 @@ class FilmoRateApplicationTests {
                 () -> assertEquals(film1, filmList.get(0), "Данные не верны"),
                 () -> assertEquals(1, filmList.size(), "Данные не верны")
         );
+    }
 
     void putAndGetEventTest(){
         User putUser = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
