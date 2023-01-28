@@ -5,7 +5,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import ru.yandex.practicum.validation.FilmReleaseDate;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +18,6 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(exclude = "userLikes")
 public class Film {
-
     private Integer id;
 
     @NotBlank(message = "Название фильма не может быть пустым")
@@ -26,6 +29,7 @@ public class Film {
     @PastOrPresent(message = "Дата релиза не может быть в будущем времени")
     @FilmReleaseDate(message = "Дата релиза не может быть раньше 28.12.1895")
     private LocalDate releaseDate;
+
     @NonNull
     @Positive
     private Integer duration;

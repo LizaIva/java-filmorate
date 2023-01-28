@@ -12,7 +12,11 @@ import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.FilmValidator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,14 +28,15 @@ public class FilmService {
 
     public Film put(Film film) {
         deduplicateGenres(film);
+
         return filmStorage.put(film);
     }
 
     public Film update(Film film) {
         FilmValidator.validateForUpdate(film);
         deduplicateGenres(film);
-
         filmStorage.updateGenre(film.getId(), film.getGenres());
+
         return filmStorage.updateFilm(film);
     }
 
@@ -90,11 +95,13 @@ public class FilmService {
 
     public Film deleteById(int id) {
         filmStorage.checkFilm(id);
+
         return filmStorage.deleteById(id);
     }
 
     public List<Film> getFilmDirectorSortedBy(int directorId, String sortBy) {
         directorStorage.getDirector(directorId);
+
         if (sortBy.equals("year")) {
             return filmStorage.getFilmsDirectorSortedByYear(directorId);
         } else if (sortBy.equals("likes")) {
@@ -126,8 +133,10 @@ public class FilmService {
         final String title = "title";
         final String directorTitleVar1 = "director" + "," + "title";
         final String directorTitleVar2 = "title" + "," + "director";
+
         List<Film> allFilms = filmStorage.getAll();
         HashSet<Film> result = new HashSet<>();
+
         switch (by) {
             case (director):
                 findFilmByDirector(allFilms, result, query);
@@ -141,18 +150,18 @@ public class FilmService {
                 findFilmByDirector(allFilms, result, query);
                 break;
         }
+
         return filmsSortedByLikes(new ArrayList<>(result));
     }
 
-    public static List<Film> filmsSortedByLikes(List<Film> films) { // сортировка фильма по лайкам
-        Collections.sort(films, new LikesFilmReverseComparator());
+    // Сортировка фильма по лайкам
+    public static List<Film> filmsSortedByLikes(List<Film> films) {
+        films.sort(new LikesFilmReverseComparator());
         return films;
     }
 
-
     private void findFilmByDirector(List<Film> allFilms, HashSet<Film> result, String query) {
-        for (Film film :
-                allFilms) {
+        for (Film film : allFilms) {
             for (Director dir : film.getDirectors()) {
                 if (dir.getName().toLowerCase().contains(query)) {
                     result.add(film);
@@ -163,18 +172,16 @@ public class FilmService {
     }
 
     private void findFilmByTitle(List<Film> allFilms, HashSet<Film> result, String query) {
-        for (Film film :
-                allFilms) {
+        for (Film film : allFilms) {
             if (film.getName().toLowerCase().contains(query)) {
                 result.add(film);
             }
         }
     }
-
-
 }
 
-class LikesFilmReverseComparator implements Comparator<Film> {// сортировка по лайкам в обратном порядке
+// Сортировка по лайкам в обратном порядке
+class LikesFilmReverseComparator implements Comparator<Film> {
     @Override
     public int compare(Film film1, Film film2) {
         return -1 * Integer.valueOf(film1.getUserLikes().size()).compareTo((film2.getUserLikes().size()));

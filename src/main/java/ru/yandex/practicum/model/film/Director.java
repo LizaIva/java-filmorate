@@ -1,6 +1,8 @@
 package ru.yandex.practicum.model.film;
 
-import lombok.*;
+import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
@@ -11,6 +13,7 @@ import javax.validation.constraints.Positive;
 public class Director {
     @Positive
     private Integer id;
+
     @NotBlank(message = "Имя режессера не может быть пустым")
     private String name;
 }

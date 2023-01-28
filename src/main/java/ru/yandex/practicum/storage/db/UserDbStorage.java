@@ -8,20 +8,29 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
+import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.FriendConnection;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
 @Component
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final FilmDbStorage filmDbStorage;
 
     @Override
     public User put(User user) {
@@ -116,7 +125,6 @@ public class UserDbStorage implements UserStorage {
             return null;
         }
 
-
         foundUser.setFriends(findFriends(id));
 
         return foundUser;
@@ -124,11 +132,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User deleteById(int id) {
-        final String sqlDeleteQuery = "DELETE FROM users WHERE USER_ID = ?";
+        String sqlDeleteQuery = "DELETE FROM users WHERE USER_ID = ?";
         User user = get(id);
-        jdbcTemplate.update(sqlDeleteQuery, id);
 
-        log.info("запрос на удаление user с id = {} отправлен", id);
+        jdbcTemplate.update(sqlDeleteQuery, id);
+        log.info("Запрос на удаление user с id = {} отправлен", id);
+
         return user;
     }
 
@@ -187,8 +196,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void acceptFriendship(int userId, int friendId) {
         User friend = get(friendId);
-
         boolean notFriend = true;
+
         for (FriendConnection friendConnection : friend.getFriends()) {
             if (friendConnection.getFriendId() == userId) {
                 notFriend = false;
@@ -218,18 +227,8 @@ public class UserDbStorage implements UserStorage {
     public void removeFriend(int userId, int friendId) {
         String sqlQuery = "delete from user_friends where user_id = ? AND friend_id = ?";
 
-        jdbcTemplate.update(
-                sqlQuery,
-                userId,
-                friendId
-        );
-
-        jdbcTemplate.update(
-                sqlQuery,
-                friendId,
-                userId
-        );
-
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+        jdbcTemplate.update(sqlQuery, friendId, userId);
     }
 
     @Override
@@ -276,12 +275,48 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.queryForObject(sqlQuery, String.class, statusId);
     }
 
+    @Override
+    public List<Film> getRecommendations(Integer userId) {
+        int maxMatch = 0;
+        Integer similarUserId = null;
+
+        for (User otherUser : getAll()) {
+            if (!otherUser.equals(get(userId))) {
+                List<Integer> overlap = getLikedFilmsIds(userId);
+
+                overlap.retainAll(getLikedFilmsIds(otherUser.getId()));
+
+                if (overlap.size() > maxMatch) {
+                    maxMatch = overlap.size();
+                    similarUserId = otherUser.getId();
+                }
+            }
+        }
+
+        if (similarUserId != null) {
+            List<Integer> recommendedFilmsIds = getLikedFilmsIds(similarUserId);
+            recommendedFilmsIds.removeAll(getLikedFilmsIds(userId));
+
+            return recommendedFilmsIds.stream()
+                    .map(filmDbStorage::get)
+                    .collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
+    private List<Integer> getLikedFilmsIds(Integer userId) {
+        String sqlQuery = "SELECT film_id FROM film_likes WHERE user_id = ?;";
+        return jdbcTemplate.queryForList(sqlQuery, Integer.class, userId);
+    }
 
     private static String repeat(int times, String delimiter) {
         if (times == 1) {
             return "?";
         }
+
         String withDelimiter = "?" + delimiter;
+
         return withDelimiter.repeat(times - 1) + "?";
     }
 
@@ -294,6 +329,7 @@ public class UserDbStorage implements UserStorage {
         );
 
         user.setId(rs.getInt("user_id"));
+
         return user;
     }
 
@@ -301,6 +337,7 @@ public class UserDbStorage implements UserStorage {
     public void checkUser(int id) {
         final String sqlCheckQuery = "SELECT * FROM users WHERE USER_ID = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlCheckQuery, id);
+
         if (!userRows.next()) {
             log.info("user с id = {} не найден.", id);
             throw new UnknownDataException("user с id = " + id + " не найден.");
