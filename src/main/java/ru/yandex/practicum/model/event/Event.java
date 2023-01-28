@@ -1,11 +1,13 @@
 package ru.yandex.practicum.model.event;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.yandex.practicum.model.event.constants.EventType;
 import ru.yandex.practicum.model.event.constants.Operation;
 
 
 @Data
+@AllArgsConstructor
 public class Event {
     private Integer eventId;
     private Long timestamp;
@@ -17,13 +19,5 @@ public class Event {
     private Operation operation;
 
     private Integer entityId;
-
-    public Event(long timestamp, int userId, EventType eventType, Operation operation, int entityId) {
-        this.timestamp = timestamp;
-        this.userId = userId;
-        this.eventType = eventType;
-        this.operation = operation;
-        this.entityId = entityId;
-    }
 }
 

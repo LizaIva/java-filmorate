@@ -28,7 +28,7 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public List<Event> getEvents(Integer userId) {
-        List<Event> foundEvent = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "select * from EVENT_FEED where user_id = ? " +
                         "union " +
                         "select * " +
@@ -39,26 +39,17 @@ public class EventDbStorage implements EventStorage {
                 userId,
                 userId
         );
-
-        if (foundEvent == null) {
-            return null;
-        }
-
-
-        return foundEvent;
     }
 
     private Event mapEventData(ResultSet rs) throws SQLException {
-        Event event = new Event(
+        return new Event(
+                rs.getInt("event_id"),
                 rs.getTimestamp("timestamp").getTime(),
                 rs.getInt("user_id"),
                 EventType.valueOf(rs.getString("event_type")),
                 Operation.valueOf(rs.getString("operation")),
                 rs.getInt("entity_id")
         );
-
-        event.setEventId(rs.getInt("event_id"));
-        return event;
     }
 
 }

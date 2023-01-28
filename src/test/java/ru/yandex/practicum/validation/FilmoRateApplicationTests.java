@@ -541,7 +541,7 @@ class FilmoRateApplicationTests {
         Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
-        Event event = new Event(1223442, userId, EventType.LIKE, Operation.ADD, filmId);
+        Event event = new Event(1, 123344556L, userId, EventType.LIKE, Operation.ADD, filmId);
         eventService.putEvent(event.getUserId(), event.getEventType(), event.getOperation(), event.getEntityId());
 
         List<Event> eventsUser = eventService.getEvents(userId);
