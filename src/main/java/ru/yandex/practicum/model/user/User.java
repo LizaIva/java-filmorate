@@ -14,7 +14,6 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(exclude = "friends")
 public class User {
-
     private Integer id;
 
     @NotEmpty(message = "Email не может быть пустым")
@@ -23,10 +22,12 @@ public class User {
 
     @NotBlank(message = "Логин не может быть пустым")
     private String login;
+
     private String name;
 
     @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
+
     private List<FriendConnection> friends = new ArrayList<>();
 
     public User(String email, String login, String name, LocalDate birthday) {

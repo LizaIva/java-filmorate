@@ -13,7 +13,7 @@ public interface UserStorage {
 
     User get(Integer id);
 
-    public User deleteById(int id);
+    User deleteById(int id);
 
     List<User> getUsersByIds(List<Integer> ids);
 

@@ -10,21 +10,21 @@ import ru.yandex.practicum.service.FilmService;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class GenreController {
     private final FilmService filmService;
 
     @GetMapping("/genres")
-    public List<Genre> getAllGenres(){
+    public List<Genre> getAllGenres() {
         log.info("Получен запрос на получение списка всех жанров");
         return filmService.getAllGenres();
     }
 
     @GetMapping("/genres/{id}")
-    public Genre getGenreById(@PathVariable Integer id){
-        log.info("Получен запрос на получение жанра по его id");
+    public Genre getGenreById(@PathVariable Integer id) {
+        log.info("Получен запрос на получение жанра с id = {}", id);
         return filmService.getGenreById(id);
     }
 }

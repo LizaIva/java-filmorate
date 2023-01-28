@@ -9,7 +9,6 @@ import java.util.List;
 
 @Service
 public class ReviewService {
-
     private final ReviewDbStorage reviewDbStorage;
 
     private final ReviewValidator reviewValidator = new ReviewValidator();
@@ -53,6 +52,6 @@ public class ReviewService {
     }
 
     public Review deleteDislike(int reviewId, int userId) {
-        return reviewDbStorage.deleteDislikeFromReview(reviewId,userId);
+        return reviewDbStorage.deleteDislikeFromReview(reviewId, userId);
     }
 }

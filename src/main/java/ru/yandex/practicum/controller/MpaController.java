@@ -10,9 +10,9 @@ import ru.yandex.practicum.service.FilmService;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class MpaController {
     private final FilmService filmService;
 
@@ -24,7 +24,7 @@ public class MpaController {
 
     @GetMapping("/mpa/{id}")
     public MPA getCategoryById(@PathVariable Integer id) {
-        log.info("Получен запрос на получение категории по его id");
+        log.info("Получен запрос на получение категории с id = {}", id);
         return filmService.getCategoryById(id);
     }
 }

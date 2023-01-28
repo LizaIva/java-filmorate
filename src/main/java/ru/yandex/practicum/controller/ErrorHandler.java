@@ -10,17 +10,13 @@ import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.ErrorResponse;
 
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(ValidationException e) {
-        return new ErrorResponse(
-                e.getMessage()
-        );
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
@@ -32,18 +28,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUnknownDataException(UnknownDataException e) {
-        return new ErrorResponse(
-                e.getMessage()
-        );
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(Throwable e) {
         log.error("Unknown error", e);
-        return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
-        );
+        return new ErrorResponse("Произошла непредвиденная ошибка.");
     }
-
 }

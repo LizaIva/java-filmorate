@@ -97,9 +97,8 @@ CREATE TABLE IF NOT EXISTS director
 
 CREATE TABLE IF NOT EXISTS film_director
 (
-    film_id INTEGER,
-        FOREIGN KEY (film_id) REFERENCES film (film_id) ON DELETE CASCADE,
+    film_id     INTEGER,
+    FOREIGN KEY (film_id) REFERENCES film (film_id) ON DELETE CASCADE,
     director_id INTEGER,
-        FOREIGN KEY (director_id) REFERENCES director (director_id) ON DELETE CASCADE
+    FOREIGN KEY (director_id) REFERENCES director (director_id) ON DELETE CASCADE
 );
-
