@@ -41,4 +41,6 @@ public interface FilmStorage {
     Film deleteById(int id);
 
     void checkFilm(int id);
+
+    boolean isLikeExists ( int filmId, int userId);
 }

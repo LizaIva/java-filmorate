@@ -3,6 +3,8 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
@@ -25,6 +27,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final DirectorStorage directorStorage;
     private final UserStorage userStorage;
+    private final EventService eventService;
 
     public Film put(Film film) {
         deduplicateGenres(film);
@@ -61,12 +64,14 @@ public class FilmService {
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
         filmStorage.addLike(filmId, userId);
+        eventService.putEvent(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
     public void removeLike(int filmId, int userId) {
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
         filmStorage.deleteLike(filmId, userId);
+        eventService.putEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public List<Film> getTop(Integer limit) {

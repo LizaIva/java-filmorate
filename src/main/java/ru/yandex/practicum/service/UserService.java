@@ -3,6 +3,8 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
@@ -14,6 +16,8 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final EventService eventService;
+
 
     public User put(User user) {
         if (user == null) {
@@ -54,12 +58,14 @@ public class UserService {
         userStorage.checkUser(userId);
         userStorage.checkUser(addedUserId);
         userStorage.addFriend(userId, addedUserId);
+        eventService.putEvent(userId, EventType.FRIEND, Operation.ADD, addedUserId);
     }
 
     public void acceptFriendship(int userId, int friendId) {
         userStorage.checkUser(userId);
         userStorage.checkUser(friendId);
         userStorage.acceptFriendship(userId, friendId);
+        eventService.putEvent(userId, EventType.FRIEND, Operation.UPDATE, friendId);
     }
 
     public String getStatusName(int statusId) {
@@ -70,6 +76,7 @@ public class UserService {
         userStorage.checkUser(userId);
         userStorage.checkUser(removedUserid);
         userStorage.removeFriend(userId, removedUserid);
+        eventService.putEvent(userId, EventType.FRIEND, Operation.REMOVE, removedUserid);
     }
 
     public List<User> commonFriends(int userId1, int userId2) {
