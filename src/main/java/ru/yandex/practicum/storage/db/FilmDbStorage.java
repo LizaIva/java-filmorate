@@ -111,77 +111,67 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film film) {
-        Film filmForUpdate = get(film.getId());
+public Film updateFilm(Film film) {
+    Film filmForUpdate = get(film.getId());
 
-        StringBuilder query = new StringBuilder("update film set ");
-        List<Object> args = new LinkedList<>();
+    StringBuilder query = new StringBuilder("update film set ");
+    List<Object> args = new LinkedList<>();
 
-        if (film.getName() != null) {
-            query.append("TITLE = ?");
-            args.add(film.getName());
+    if (film.getName() != null) {
+        query.append("TITLE = ?");
+        args.add(film.getName());
 
-            filmForUpdate.setName(film.getName());
-        }
-
-        if (film.getDescription() != null) {
-            if (!args.isEmpty()) {
-                query.append(", ");
-            }
-
-            query.append("DESCRIPTION = ?");
-            args.add(film.getDescription());
-            filmForUpdate.setDescription(film.getDescription());
-        }
-
-        if (film.getReleaseDate() != null) {
-            if (!args.isEmpty()) {
-                query.append(", ");
-            }
-
-            query.append("RELEASE_DATE = ?");
-            args.add(film.getReleaseDate());
-            filmForUpdate.setReleaseDate(film.getReleaseDate());
-        }
-
+        filmForUpdate.setName(film.getName());
+    }
+    if (film.getDescription() != null) {
         if (!args.isEmpty()) {
             query.append(", ");
+        }
+        query.append("DESCRIPTION = ?");
+        args.add(film.getDescription());
 
-        if (film.getDuration() != null) {
-            if (!args.isEmpty()) {
-                query.append(", ");
-            }
+        filmForUpdate.setDescription(film.getDescription());
+    }
 
-            query.append("DURATION = ?");
-            args.add(film.getDuration());
-            filmForUpdate.setDuration(film.getDuration());
+    if (film.getReleaseDate() != null) {
+        if (!args.isEmpty()) {
+            query.append(", ");
+        }
+        query.append("RELEASE_DATE = ?");
+        args.add(film.getReleaseDate());
+
+        filmForUpdate.setReleaseDate(film.getReleaseDate());
+    }
+
+    if (film.getDuration() != null) {
+        if (!args.isEmpty()) {
+            query.append(", ");
         }
         query.append("DURATION = ?");
         args.add(film.getDuration());
         filmForUpdate.setDuration(film.getDuration());
+    }
 
-        if (film.getMpa() != null) {
+    if (film.getMpa() != null) {
+        if (!args.isEmpty()) {
             query.append(", ");
-
-            query.append("MPA_ID = ?");
-            args.add(film.getMpa().getId());
-            filmForUpdate.setMpa(film.getMpa());
         }
 
+        query.append("MPA_ID = ?");
+        args.add(film.getMpa().getId());
+
+        filmForUpdate.setMpa(film.getMpa());
+    }
+
+    if (!args.isEmpty()) {
         query.append(" where FILM_ID = ?");
         args.add(film.getId());
 
         jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
-
-        if (!args.isEmpty()) {
-            query.append(" where FILM_ID = ?");
-            args.add(film.getId());
-            jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
-        }
-
-        filmForUpdate.setDirectors(putDirector(film.getId(), film.getDirectors()));
-        return filmForUpdate;
     }
+    filmForUpdate.setDirectors(putDirector(film.getId(), film.getDirectors()));
+    return filmForUpdate;
+}
 
 
     @Override
