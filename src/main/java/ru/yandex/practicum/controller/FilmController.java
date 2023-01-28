@@ -91,5 +91,35 @@ public class FilmController {
         log.info("Получен запрос на удаление фильма с id = {}", id);
         return filmService.deleteById(id);
     }
-}
 
+    @GetMapping(value = "/popular", params = {"count", "genreId", "year"})
+    public List<Film> findLimitPopularFilmsByGenreAndYear(@RequestParam(value = "count") Integer count,
+                                                     @RequestParam(value = "genreId") Integer genreId,
+                                                     @RequestParam(value = "year") Integer year) {
+
+        log.info("Получен запрос на вывод топ {} фильмов в жанре {} за {} год", count, genreId, year);
+        return filmService.findLimitPopularFilmsByGenreAndYear(count, genreId, year);
+    }
+
+    @GetMapping(value = "/popular", params = {"year", "genreId"})
+    public List<Film> findPopularFilmsByYearAndGenre(@RequestParam(value = "year") Integer year,
+                                                     @RequestParam(value = "genreId") Integer genreId) {
+
+        log.info("Получен запрос на вывод топ фильмов в жанре {} за {} год", genreId, year);
+        return filmService.findPopularFilmsByYearAndGenre(year, genreId);
+    }
+
+    @GetMapping(value = "/popular", params = {"year"})
+    public List<Film> findPopularFilmsByYear(@RequestParam(value = "year") Integer year) {
+
+        log.info("Получен запрос на вывод топ фильмов за {} год", year);
+        return filmService.findPopularFilmsByYear(year);
+    }
+
+    @GetMapping(value = "/popular", params = {"genreId"})
+    public List<Film> findPopularFilmsByGenre(@RequestParam(value = "genreId") Integer genreId) {
+
+        log.info("Получен запрос на вывод топ фильмов в жанре {}", genreId);
+        return filmService.findPopularFilmsByGenre(genreId);
+    }
+}

@@ -116,6 +116,22 @@ public class FilmService {
         }
     }
 
+    public List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        return filmStorage.findLimitPopularFilmsByGenreAndYear(count, genreId, year);
+    }
+
+    public List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId) {
+        return filmStorage.findPopularFilmsByYearAndGenre(year, genreId);
+    }
+
+    public List<Film> findPopularFilmsByYear(Integer year) {
+        return filmStorage.findPopularFilmsByYear(year);
+    }
+
+    public List<Film> findPopularFilmsByGenre(Integer genreId) {
+        return filmStorage.findPopularFilmsByGenre(genreId);
+    }
+
     public List<Film> searchFilms(String query, String by) {
         query = query.toLowerCase();
         final String director = "director";
