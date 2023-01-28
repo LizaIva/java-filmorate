@@ -92,10 +92,11 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public String deleteReviewById(Integer id) {
-        if (Optional.of(getReviewById(id)).isPresent()) {
+    public Review deleteReviewById(Integer id) {
+        Review reviewById = getReviewById(id);
+        if (Optional.of(reviewById).isPresent()) {
             jdbcTemplate.update("delete from reviews where review_id = ?", id);
-            return "Успешное удаление";
+            return reviewById;
         } else {
             throw new UnknownDataException("Не найден отзыв с данным id");
         }

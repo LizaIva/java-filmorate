@@ -48,4 +48,6 @@ public interface FilmStorage {
     List<Film> findPopularFilmsByYear(Integer year);
 
     List<Film> findPopularFilmsByGenre(Integer genreId);
+    
+    boolean isLikeExists ( int filmId, int userId);
 }
