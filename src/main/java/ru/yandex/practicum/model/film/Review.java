@@ -1,17 +1,21 @@
 package ru.yandex.practicum.model.film;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Builder
 public class Review {
-
-
     int reviewId;
 
     @NonNull
@@ -27,7 +31,4 @@ public class Review {
     Integer filmId;
 
     Integer useful = 0;
-
-
-
 }

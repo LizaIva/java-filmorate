@@ -1,6 +1,5 @@
 package ru.yandex.practicum.storage;
 
-import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;

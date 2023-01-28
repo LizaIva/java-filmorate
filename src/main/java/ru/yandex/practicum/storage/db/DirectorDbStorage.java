@@ -23,16 +23,17 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director addDirector(Director director) {
-        String sqlQuery = "insert into director (name) " +
-                "values (?)";
+        String sqlQuery = "insert into director (name) values (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
+
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sqlQuery,
-                    Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, director.getName());
             return ps;
         }, keyHolder);
+
         director.setId(keyHolder.getKey().intValue());
+
         return director;
     }
 
@@ -40,31 +41,38 @@ public class DirectorDbStorage implements DirectorStorage {
     public Director getDirector(int id) {
         String sqlQuery = "select * from director where director_id = ?";
         SqlRowSet directorRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
+
         if (!directorRows.next()) {
             throw new UnknownDataException("Director с id = " + id + " не найден");
         }
+
         return jdbcTemplate.queryForObject(sqlQuery, this::makeDirector, id);
     }
 
     @Override
     public List<Director> getAllDirector() {
         String sqlQuery = "select * from director";
+
         return jdbcTemplate.query(sqlQuery, this::makeDirector);
     }
 
     @Override
     public Director updateDirector(Director director) {
         String sqlQuery = "update director set name = ? where director_id = ?";
+
         getDirector(director.getId());
         jdbcTemplate.update(sqlQuery, director.getName(), director.getId());
+
         return director;
     }
 
     @Override
     public int deleteDirector(int id) {
         String sqlQuery = "delete from director where director_id = ?";
+
         getDirector(id);
         jdbcTemplate.update(sqlQuery, id);
+
         return id;
     }
 
@@ -72,6 +80,7 @@ public class DirectorDbStorage implements DirectorStorage {
     private Director makeDirector(ResultSet rs, int rowNum) throws SQLException {
         int id = rs.getInt("director_id");
         String name = rs.getString("name");
+
         return new Director(id, name);
     }
 
@@ -84,11 +93,12 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void addFilmDirector(int filmId, List<Director> list) {
-        String sqlQuery = "insert into film_director (film_id, director_id) " +
-                "values (?, ?)";
+        String sqlQuery = "insert into film_director (film_id, director_id) values (?, ?)";
+
         if (list == null || list.isEmpty()) {
             return;
         }
+
         for (Director director : list) {
             jdbcTemplate.update(sqlQuery, filmId, director.getId());
         }

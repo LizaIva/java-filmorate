@@ -11,7 +11,6 @@ import java.util.List;
 
 @Service
 public class ReviewService {
-
     private final ReviewDbStorage reviewDbStorage;
 
     private final ReviewValidator reviewValidator = new ReviewValidator();

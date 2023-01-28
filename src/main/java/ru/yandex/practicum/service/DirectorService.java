@@ -8,8 +8,8 @@ import ru.yandex.practicum.storage.DirectorStorage;
 
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class DirectorService {
     private final DirectorStorage directorStorage;

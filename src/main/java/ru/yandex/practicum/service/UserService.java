@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.event.constants.EventType;
 import ru.yandex.practicum.model.event.constants.Operation;
+import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
 import ru.yandex.practicum.validation.UserValidator;
@@ -89,4 +90,7 @@ public class UserService {
         return userStorage.foundUserFriends(userId);
     }
 
+    public List<Film> getRecommendations(Integer userId) {
+        return userStorage.getRecommendations(userId);
+    }
 }
