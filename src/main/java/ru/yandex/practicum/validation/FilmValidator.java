@@ -12,6 +12,7 @@ public class FilmValidator {
         if (film == null) {
             throw new ValidationException("Отсутсвуют данные для создания фильма");
         }
+
         validateName(film.getName());
         validateDescription(film.getDescription());
         validateReleaseDate(film.getReleaseDate());
@@ -22,9 +23,11 @@ public class FilmValidator {
         if (film == null) {
             throw new ValidationException("Отсутсвуют данные для обновления фильма");
         }
+
         if (film.getId() == null) {
             throw new ValidationException("Отсутсвует id");
         }
+
         validateUpdatedName(film.getName());
         validateUpdatedDescription(film.getDescription());
         validateUpdatedDuration(film.getDuration());
@@ -78,6 +81,4 @@ public class FilmValidator {
             throw new ValidationException("Дата релиза фильма не может быть раньше 28.12.1895");
         }
     }
-
-
 }

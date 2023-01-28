@@ -1,6 +1,5 @@
 package ru.yandex.practicum.storage;
 
-import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
@@ -39,7 +38,7 @@ public interface FilmStorage {
 
     List<Film> getCommonFilms(Integer userId, Integer friendId);
 
-    public Film deleteById(int id);
+    Film deleteById(int id);
 
-    public void checkFilm(int id);
+    void checkFilm(int id);
 }
