@@ -17,7 +17,6 @@ import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
 
 
-import java.sql.*;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -209,19 +208,11 @@ public Film updateFilm(Film film) {
 
     @Override
     public void addLike(int filmId, int userId) {
-        if (isLikeExists(filmId, userId)){
-            log.warn("У фильма с идентификатором {} уже стоит лайк от пользователя с идентификатором {}.", filmId, userId);
-            throw new AlreadyExistException("У фильма уже стоит лайк от данного пользователя.");
-        }
         jdbcTemplate.update("INSERT INTO FILM_LIKES VALUES (?, ?)", filmId, userId);
     }
 
     @Override
     public void deleteLike(int filmId, int userId) {
-        if (!isLikeExists(filmId, userId)){
-            log.warn("У фильма с идентификатором {} нет лайка от пользователя с идентификатором {}.", filmId, userId);
-            throw new AlreadyExistException("Невозможно удалит лайк от пользователя от которого нет лайка");
-        }
         jdbcTemplate.update("DELETE FROM FILM_LIKES WHERE FILM_ID = ? AND USER_ID = ?", filmId, userId);
     }
 
@@ -437,12 +428,5 @@ public Film updateFilm(Film film) {
             log.warn("Фильм с идентификатором {} не найден.", id);
             throw new UnknownDataException("Фильм c id = " + id + " не найден");
         }
-    }
-
-    @Override
-    public boolean isLikeExists ( int filmId, int userId){
-        String checkQuery = "SELECT * FROM FILM_LIKES WHERE FILM_ID = ? AND USER_ID = ? ";
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkQuery, filmId, userId);
-        return filmRows.next();
     }
 }

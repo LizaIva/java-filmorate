@@ -21,7 +21,7 @@ public class UserService {
 
     public User put(User user) {
         if (user == null) {
-            throw new UnknownDataException("Нельзя сохранить пустого пользователя");
+            throw new UnknownDataException("Невозможно сохранить пользователя без данных.");
         }
 
         if (user.getName() == null || user.getName().isBlank()) {

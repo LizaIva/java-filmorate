@@ -3,6 +3,7 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.exception.AlreadyExistException;
 import ru.yandex.practicum.model.event.constants.EventType;
 import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Director;
@@ -159,7 +160,6 @@ public class FilmService {
         return filmsSortedByLikes(new ArrayList<>(result));
     }
 
-    // Сортировка фильма по лайкам
     public static List<Film> filmsSortedByLikes(List<Film> films) {
         films.sort(new LikesFilmReverseComparator());
         return films;
@@ -185,7 +185,6 @@ public class FilmService {
     }
 }
 
-// Сортировка по лайкам в обратном порядке
 class LikesFilmReverseComparator implements Comparator<Film> {
     @Override
     public int compare(Film film1, Film film2) {
