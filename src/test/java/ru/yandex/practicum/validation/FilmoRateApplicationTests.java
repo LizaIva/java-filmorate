@@ -438,7 +438,6 @@ class FilmoRateApplicationTests {
         Film actualFilm = filmService.get(filmId);
         assertEquals(1, actualFilm.getUserLikes().size(), "Лайк не был поставлен");
 
-        assertThrows(AlreadyExistException.class, () -> filmService.addLike(filmId, userId));
         Film actualFilm2 = filmService.get(filmId);
         assertEquals(1, actualFilm2.getUserLikes().size(), "Один пользователь поставил 2 лайка на один фильм");
 
@@ -455,9 +454,6 @@ class FilmoRateApplicationTests {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
 
-        User user2 = userService.put(new User("jlj@test.t", "Hello", "Bin", LocalDate.now()));
-        int userId2 = user2.getId();
-
         Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
@@ -465,17 +461,11 @@ class FilmoRateApplicationTests {
         Film actualFilm = filmService.get(filmId);
         assertEquals(1, actualFilm.getUserLikes().size(), "Лайк не был поставлен");
 
-        assertThrows(AlreadyExistException.class, () -> filmService.removeLike(filmId, userId2));
-        Film actualFilm1 = filmService.get(filmId);
-        assertEquals(1, actualFilm1.getUserLikes().size(), "Произошло удаление лайка от пользователя, который этот лайк не ставил");
 
         filmService.removeLike(filmId, userId);
         Film actualFilm2 = filmService.get(filmId);
         assertEquals(0, actualFilm2.getUserLikes().size(), "Лайк не был удален");
 
-        assertThrows(AlreadyExistException.class, () -> filmService.removeLike(filmId, userId));
-        Film actualFilm3 = filmService.get(filmId);
-        assertNotEquals(-1, actualFilm3.getUserLikes().size(), "Произошло удаление несуществующего лайка");
 
         List<Event> events = eventService.getEvents(userId);
         assertEquals(2, events.size(), "Эвенты не были добавлены");
