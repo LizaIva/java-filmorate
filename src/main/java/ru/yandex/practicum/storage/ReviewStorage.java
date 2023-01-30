@@ -11,7 +11,7 @@ public interface ReviewStorage {
 
     Review getReviewById(Integer id);
 
-    String deleteReviewById(Integer id);
+    Review deleteReviewById(Integer id);
 
     Review addLikeToReview(Integer reviewId, Integer userId);
 

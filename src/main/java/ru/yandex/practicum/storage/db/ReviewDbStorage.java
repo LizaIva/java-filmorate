@@ -1,5 +1,6 @@
 package ru.yandex.practicum.storage.db;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,22 +19,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Component
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate, UserStorage userStorage, FilmStorage filmStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
-    }
-
     @Override
     public Review addReview(Review review) {
-        userStorage.get(review.getUserId()); // проверка на существование пользователя
-        filmStorage.get(review.getFilmId()); // проверка на существование фильма
+        userStorage.checkUser(review.getUserId());
+        filmStorage.checkFilm(review.getFilmId());
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "insert into reviews(content, is_positive, user_id, film_id, USEFUL) values (?, ?, ?, ?, 0)";
@@ -92,10 +88,11 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public String deleteReviewById(Integer id) {
-        if (Optional.of(getReviewById(id)).isPresent()) {
+    public Review deleteReviewById(Integer id) {
+        Review reviewById = getReviewById(id);
+        if (Optional.of(reviewById).isPresent()) {
             jdbcTemplate.update("delete from reviews where review_id = ?", id);
-            return "Успешное удаление";
+            return reviewById;
         } else {
             throw new UnknownDataException("Не найден отзыв с данным id");
         }
@@ -104,7 +101,7 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review addLikeToReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
-        userStorage.checkUser(userId); // проверяем есть ли такие айдишники, если нет - выкинет исключение
+        userStorage.checkUser(userId);
         jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?)", reviewId, userId, 1);
         jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL+1 where REVIEW_ID = ?", reviewId);
         getReviewById(reviewId).setUseful(getReviewById(reviewId).getReviewId() + 1);
@@ -115,7 +112,7 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review addDislikeToReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
-        userStorage.checkUser(userId);//проверяем есть ли такие айдишники, если нет - выкинет исключение
+        userStorage.checkUser(userId);
         jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?)", reviewId, userId, 2);
         jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId);
         getReviewById(reviewId).setUseful(getReviewById(reviewId).getReviewId() - 1);

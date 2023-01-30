@@ -3,6 +3,9 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.exception.AlreadyExistException;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
@@ -25,6 +28,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final DirectorStorage directorStorage;
     private final UserStorage userStorage;
+    private final EventService eventService;
 
     public Film put(Film film) {
         deduplicateGenres(film);
@@ -61,12 +65,14 @@ public class FilmService {
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
         filmStorage.addLike(filmId, userId);
+        eventService.putEvent(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
     public void removeLike(int filmId, int userId) {
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
         filmStorage.deleteLike(filmId, userId);
+        eventService.putEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public List<Film> getTop(Integer limit) {
@@ -114,6 +120,22 @@ public class FilmService {
         }
     }
 
+    public List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        return filmStorage.findLimitPopularFilmsByGenreAndYear(count, genreId, year);
+    }
+
+    public List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId) {
+        return filmStorage.findPopularFilmsByYearAndGenre(year, genreId);
+    }
+
+    public List<Film> findPopularFilmsByYear(Integer year) {
+        return filmStorage.findPopularFilmsByYear(year);
+    }
+
+    public List<Film> findPopularFilmsByGenre(Integer genreId) {
+        return filmStorage.findPopularFilmsByGenre(genreId);
+    }
+
     public List<Film> searchFilms(String query, String by) {
         query = query.toLowerCase();
         final String director = "director";
@@ -141,7 +163,6 @@ public class FilmService {
         return filmsSortedByLikes(new ArrayList<>(result));
     }
 
-    // Сортировка фильма по лайкам
     public static List<Film> filmsSortedByLikes(List<Film> films) {
         films.sort(new LikesFilmReverseComparator());
         return films;
@@ -167,7 +188,6 @@ public class FilmService {
     }
 }
 
-// Сортировка по лайкам в обратном порядке
 class LikesFilmReverseComparator implements Comparator<Film> {
     @Override
     public int compare(Film film1, Film film2) {

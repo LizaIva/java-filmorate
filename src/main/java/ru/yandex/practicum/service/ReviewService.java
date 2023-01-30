@@ -1,6 +1,8 @@
 package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Review;
 import ru.yandex.practicum.storage.db.ReviewDbStorage;
 import ru.yandex.practicum.validation.ReviewValidator;
@@ -13,22 +15,31 @@ public class ReviewService {
 
     private final ReviewValidator reviewValidator = new ReviewValidator();
 
-    public ReviewService(ReviewDbStorage reviewDbStorage) {
+    private final EventService eventService;
+
+    public ReviewService(ReviewDbStorage reviewDbStorage, EventService eventService) {
         this.reviewDbStorage = reviewDbStorage;
+        this.eventService = eventService;
     }
 
     public Review postReview(Review review) {
         reviewValidator.validate(review);
-        return reviewDbStorage.addReview(review);
+        Review createdReview = reviewDbStorage.addReview(review);
+        eventService.putEvent(createdReview.getUserId(), EventType.REVIEW, Operation.ADD, createdReview.getReviewId());
+        return createdReview;
     }
 
     public Review putReview(Review review) {
         reviewValidator.validate(review);
-        return reviewDbStorage.updateReview(review);
+        Review updatedReview = reviewDbStorage.updateReview(review);
+        eventService.putEvent(updatedReview.getUserId(), EventType.REVIEW, Operation.UPDATE, updatedReview.getReviewId());
+        return updatedReview;
     }
 
     public String deleteReview(int id) {
-        return reviewDbStorage.deleteReviewById(id);
+        Review deletedReview = reviewDbStorage.deleteReviewById(id);
+        eventService.putEvent(deletedReview.getUserId(), EventType.REVIEW, Operation.REMOVE, id);
+        return "Успешное удаление";
     }
 
     public Review getReview(int id) {

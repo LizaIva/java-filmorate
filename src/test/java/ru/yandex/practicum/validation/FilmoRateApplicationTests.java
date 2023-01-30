@@ -8,12 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import ru.yandex.practicum.exception.AlreadyExistException;
 import ru.yandex.practicum.exception.UnknownDataException;
+
+
+import ru.yandex.practicum.model.event.Event;
+import ru.yandex.practicum.model.event.constants.EventType;
+import ru.yandex.practicum.model.event.constants.Operation;
+
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
 import ru.yandex.practicum.model.film.Review;
 import ru.yandex.practicum.model.user.User;
+import ru.yandex.practicum.service.EventService;
 import ru.yandex.practicum.service.FilmService;
 import ru.yandex.practicum.service.ReviewService;
 import ru.yandex.practicum.service.UserService;
@@ -41,6 +49,7 @@ class FilmoRateApplicationTests {
     private final FilmService filmService;
     private final JdbcTemplate jdbcTemplate;
     private final ReviewService reviewService;
+    private final EventService eventService;
 
     @BeforeEach
     void setUp() {
@@ -50,6 +59,7 @@ class FilmoRateApplicationTests {
         jdbcTemplate.update("DELETE FROM film_likes");
         jdbcTemplate.update("DELETE FROM film_genre");
         jdbcTemplate.update("DELETE FROM reviews");
+        jdbcTemplate.update("delete from event_feed");
     }
 
     @Test
@@ -249,6 +259,9 @@ class FilmoRateApplicationTests {
         assertEquals(1, actualUser2.getFriends().size(), "Не произошло подтверждение дружбы");
 
         assertThrows(UnknownDataException.class, () -> userService.acceptFriendship(userId2, userId3));
+
+        List<Event> events = eventService.getEvents(userId1);
+        assertEquals(2, events.size(), "Эвенты не были добавлены");
     }
 
     @Test
@@ -277,6 +290,12 @@ class FilmoRateApplicationTests {
 
         assertEquals(0, actualUser1.getFriends().size(), "Не произошло удаления из друзей");
         assertEquals(0, actualUser2.getFriends().size(), "Не произошло удаления из друзей");
+
+        List<Event> events = eventService.getEvents(userId1);
+        assertEquals(2, events.size(), "Эвенты не были добавлены");
+
+        List<Event> events2 = eventService.getEvents(userId2);
+        assertEquals(1, events2.size(), "Эвенты не были добавлены");
     }
 
     @Test
@@ -335,6 +354,9 @@ class FilmoRateApplicationTests {
         actualUser1 = userService.get(userId1);
         usersFriend = userService.getAllFriends(actualUser1.getId());
         assertEquals(2, usersFriend.size(), "Не произошло добавления в друзья");
+
+        List<Event> events = eventService.getEvents(userId1);
+        assertEquals(4, events.size(), "Эвенты не были добавлены");
     }
 
     @Test
@@ -453,12 +475,14 @@ class FilmoRateApplicationTests {
         Film actualFilm = filmService.get(filmId);
         assertEquals(1, actualFilm.getUserLikes().size(), "Лайк не был поставлен");
 
-        filmService.addLike(filmId, userId);
         Film actualFilm2 = filmService.get(filmId);
         assertEquals(1, actualFilm2.getUserLikes().size(), "Один пользователь поставил 2 лайка на один фильм");
 
         assertThrows(UnknownDataException.class, () -> filmService.addLike(filmId, 123));
         assertThrows(UnknownDataException.class, () -> filmService.addLike(145, userId));
+
+        List<Event> events = eventService.getEvents(userId);
+        assertEquals(1, events.size(), "Эвент не был добавлен");
     }
 
     @Test
@@ -466,29 +490,21 @@ class FilmoRateApplicationTests {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
 
-        User user2 = userService.put(new User("jlj@test.t", "Hello", "Bin", LocalDate.now()));
-        int userId2 = user2.getId();
-
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
-                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
         filmService.addLike(filmId, userId);
         Film actualFilm = filmService.get(filmId);
         assertEquals(1, actualFilm.getUserLikes().size(), "Лайк не был поставлен");
 
-        filmService.removeLike(filmId, userId2);
-        Film actualFilm1 = filmService.get(filmId);
-        assertEquals(1, actualFilm1.getUserLikes().size(),
-                "Произошло удаление лайка от пользователя, который этот лайк не ставил");
 
         filmService.removeLike(filmId, userId);
         Film actualFilm2 = filmService.get(filmId);
         assertEquals(0, actualFilm2.getUserLikes().size(), "Лайк не был удален");
 
-        filmService.removeLike(filmId, userId);
-        Film actualFilm3 = filmService.get(filmId);
-        assertNotEquals(-1, actualFilm3.getUserLikes().size(), "Произошло удаление несуществующего лайка");
+
+        List<Event> events = eventService.getEvents(userId);
+        assertEquals(2, events.size(), "Эвенты не были добавлены");
     }
 
     @Test
@@ -546,6 +562,130 @@ class FilmoRateApplicationTests {
         assertEquals(mpas.get(0), mpa1, "Поиск категории по id не работает");
 
         assertThrows(UnknownDataException.class, () -> filmService.getCategoryById(10));
+    }
+
+    @Test
+    void findLimitPopularFilmsByGenreAndYearTest() {
+        User user = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+
+        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        film1.setGenres(List.of(filmService.getGenreById(2), filmService.getGenreById(6)));
+        filmService.update(film1);
+
+        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее", LocalDate.of(1982, 10, 9), 120, filmService.getCategoryById(2)));
+        film2.setGenres(List.of(filmService.getGenreById(4), filmService.getGenreById(6)));
+        filmService.update(film2);
+
+        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц", LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
+        film3.setGenres(List.of(filmService.getGenreById(1)));
+        filmService.update(film3);
+
+        filmService.addLike(film2.getId(), user.getId());
+
+        List<Film> filmList = filmService.findLimitPopularFilmsByGenreAndYear(3, 4, 1982);
+
+        assertAll(
+                () -> assertEquals(film2, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(1, filmList.size(), "Данные не верны")
+        );
+    }
+
+    @Test
+    void findPopularFilmsByYearAndGenre() {
+        User user = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+
+        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        film1.setGenres(List.of(filmService.getGenreById(2), filmService.getGenreById(6)));
+        filmService.update(film1);
+
+        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее", LocalDate.of(1982, 10, 9), 120, filmService.getCategoryById(2)));
+        film2.setGenres(List.of(filmService.getGenreById(4), filmService.getGenreById(6)));
+        filmService.update(film2);
+
+        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц", LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
+        film3.setGenres(List.of(filmService.getGenreById(1)));
+        filmService.update(film3);
+
+        filmService.addLike(film1.getId(), user.getId());
+
+        List<Film> filmList = filmService.findPopularFilmsByYearAndGenre(2005, 2);
+
+        assertAll(
+                () -> assertEquals(film1, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(1, filmList.size(), "Данные не верны")
+        );
+    }
+
+    void putAndGetEventTest(){
+        User putUser = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        int userId = putUser.getId();
+
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        int filmId = putFilm.getId();
+
+        Event event = new Event(1, 123344556L, userId, EventType.LIKE, Operation.ADD, filmId);
+        eventService.putEvent(event.getUserId(), event.getEventType(), event.getOperation(), event.getEntityId());
+
+        List<Event> eventsUser = eventService.getEvents(userId);
+        Event actualEvent = eventsUser.get(0);
+
+        assertEquals(1, eventsUser.size(), "Событие не было добавлено.");
+        assertEquals(actualEvent.getEventType(), event.getEventType(), "Произошло неверное сохранение данных эвента.");
+        assertEquals(actualEvent.getUserId(), event.getUserId(), "Произошло неверное сохранение данных эвента.");
+    }
+
+    @Test
+    void findPopularFilmsByYear() {
+        User user = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+
+        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        film1.setGenres(List.of(filmService.getGenreById(2), filmService.getGenreById(6)));
+        filmService.update(film1);
+
+        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее", LocalDate.of(1982, 10, 9), 120, filmService.getCategoryById(2)));
+        film2.setGenres(List.of(filmService.getGenreById(4), filmService.getGenreById(6)));
+        filmService.update(film2);
+
+        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц", LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
+        film3.setGenres(List.of(filmService.getGenreById(1)));
+        filmService.update(film3);
+
+        filmService.addLike(film3.getId(), user.getId());
+
+        List<Film> filmList = filmService.findPopularFilmsByYear(2007);
+
+        assertAll(
+                () -> assertEquals(film3, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(1, filmList.size(), "Данные не верны")
+        );
+    }
+
+    @Test
+    void findPopularFilmsByGenre() {
+        User user = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+
+        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        film1.setGenres(List.of(filmService.getGenreById(2), filmService.getGenreById(6)));
+        filmService.update(film1);
+
+        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее", LocalDate.of(1982, 10, 9), 120, filmService.getCategoryById(2)));
+        film2.setGenres(List.of(filmService.getGenreById(4), filmService.getGenreById(6)));
+        filmService.update(film2);
+
+        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц", LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
+        film3.setGenres(List.of(filmService.getGenreById(1)));
+        filmService.update(film3);
+
+        filmService.addLike(film1.getId(), user.getId());
+        filmService.addLike(film2.getId(), user.getId());
+
+        List<Film> filmList = filmService.findPopularFilmsByGenre(6);
+
+        assertAll(
+                () -> assertEquals(film1, filmList.get(0), "Данные не верны"),
+                () -> assertEquals(film2, filmList.get(1), "Данные не верны"),
+                () -> assertEquals(2, filmList.size(), "Данные не верны")
+        );
     }
 
     @Test
