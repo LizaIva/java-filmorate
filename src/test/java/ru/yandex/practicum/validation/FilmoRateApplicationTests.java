@@ -8,14 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.exception.AlreadyExistException;
 import ru.yandex.practicum.exception.UnknownDataException;
-
-
 import ru.yandex.practicum.model.event.Event;
 import ru.yandex.practicum.model.event.constants.EventType;
 import ru.yandex.practicum.model.event.constants.Operation;
-
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
@@ -741,7 +737,7 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    @DisplayName("Получение списка рекомендаций для пользователя")
+    @DisplayName("Получение рекомендаций для пользователя")
     void getRecommendationsTest() {
         Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
                 LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
