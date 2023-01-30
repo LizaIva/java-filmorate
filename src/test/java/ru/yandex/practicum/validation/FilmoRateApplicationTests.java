@@ -612,7 +612,7 @@ class FilmoRateApplicationTests {
         );
     }
 
-    void putAndGetEventTest(){
+    void putAndGetEventTest() {
         User putUser = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = putUser.getId();
 
