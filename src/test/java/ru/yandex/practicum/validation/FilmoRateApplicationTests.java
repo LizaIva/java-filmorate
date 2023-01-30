@@ -2,19 +2,16 @@ package ru.yandex.practicum.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.exception.AlreadyExistException;
 import ru.yandex.practicum.exception.UnknownDataException;
-
-
 import ru.yandex.practicum.model.event.Event;
 import ru.yandex.practicum.model.event.constants.EventType;
 import ru.yandex.practicum.model.event.constants.Operation;
-
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.film.Genre;
 import ru.yandex.practicum.model.film.MPA;
@@ -27,37 +24,39 @@ import ru.yandex.practicum.service.UserService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FilmoRateApplicationTests {
-
     private final UserService userService;
     private final FilmService filmService;
-
     private final JdbcTemplate jdbcTemplate;
-
     private final ReviewService reviewService;
-
     private final EventService eventService;
 
     @BeforeEach
     void setUp() {
-        jdbcTemplate.update("delete from USERS");
-        jdbcTemplate.update("delete from USER_FRIENDS");
-        jdbcTemplate.update("delete from FILM");
-        jdbcTemplate.update("delete from FILM_LIKES");
-        jdbcTemplate.update("delete from FILM_GENRE");
-        jdbcTemplate.update("delete from reviews");
-        jdbcTemplate.update("delete from EVENT_FEED");
+        jdbcTemplate.update("DELETE FROM users");
+        jdbcTemplate.update("DELETE FROM user_friends");
+        jdbcTemplate.update("DELETE FROM film");
+        jdbcTemplate.update("DELETE FROM film_likes");
+        jdbcTemplate.update("DELETE FROM film_genre");
+        jdbcTemplate.update("DELETE FROM reviews");
+        jdbcTemplate.update("delete from event_feed");
     }
-
 
     @Test
     public void putAndGetUserTest() {
@@ -72,26 +71,32 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void shouldPutReview(){
+    void shouldPutReview() {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
-        Review postReview = reviewService.postReview(new Review("asas",false, userId,filmId));
+
+        Review postReview = reviewService.postReview(new Review("asas", false, userId, filmId));
         Review review = reviewService.getReview(postReview.getReviewId());
 
         assertEquals(postReview.getReviewId(), review.getReviewId());
         assertEquals(postReview.getContent(), review.getContent());
-        assertEquals(postReview.getFilmId(),review.getFilmId());
+        assertEquals(postReview.getFilmId(), review.getFilmId());
     }
 
     @Test
-    void shouldThrowErrorAndGetReviewById(){
+    void shouldThrowErrorAndGetReviewById() {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
-        Review postReview = reviewService.postReview(new Review("asas",false, userId,filmId));
+
+        Review postReview = reviewService.postReview(new Review("asas", false, userId, filmId));
 
         assertEquals(postReview.getReviewId(), reviewService.getReview(postReview.getReviewId()).getReviewId());
         assertThrows(UnknownDataException.class, () -> reviewService.getReview(1000));
@@ -99,27 +104,31 @@ class FilmoRateApplicationTests {
 
     @Test
     void wontPostReviewWithoutUser() {
-        filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
-        Review postReview = new Review("asas",false, 1,1);
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        Review postReview = new Review("asas", false, 1, putFilm.getId());
+
         assertThrows(UnknownDataException.class, () -> reviewService.postReview(postReview));
     }
 
     @Test
     void wontPostReviewWithoutFilm() {
-        userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
-        Review postReview = new Review("asas",false, 1,1);
+        User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        Review postReview = new Review("asas", false, userPut.getId(), 1);
 
-        assertThrows(UnknownDataException.class,() -> reviewService.postReview(postReview));
+        assertThrows(UnknownDataException.class, () -> reviewService.postReview(postReview));
     }
 
     @Test
     void shouldDeleteReview() {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
-        int filmId = putFilm.getId();
-        Review postReview = reviewService.postReview(new Review("asas",false, userId,filmId));
 
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        int filmId = putFilm.getId();
+
+        Review postReview = reviewService.postReview(new Review("asas", false, userId, filmId));
         reviewService.deleteReview(postReview.getReviewId());
 
         assertThrows(UnknownDataException.class, () -> reviewService.getReview(postReview.getReviewId()));
@@ -154,10 +163,9 @@ class FilmoRateApplicationTests {
         User actualUser = userService.get(userId);
         assertNotEquals("lalala", actualUser.getLogin(), "Не произошла замена логина");
         assertNotEquals("alala@test.t", actualUser.getEmail(), "Не произошла замена почты");
-        assertNotEquals("Liza", actualUser.getName(), "Не произошла замена имени" );
+        assertNotEquals("Liza", actualUser.getName(), "Не произошла замена имени");
         assertEquals(actualUser.getLogin(), actualUser.getName(), "Не произошло замены пустого имени логином пользователя");
         assertNotEquals(LocalDate.now(), actualUser.getBirthday(), "Не произошла замена даты рождения");
-
     }
 
     @Test
@@ -167,7 +175,6 @@ class FilmoRateApplicationTests {
 
         User actualUser = userService.get(userId);
 
-
         assertEquals(userPut, actualUser, "Пользователь по id не найден");
         assertThrows(UnknownDataException.class, () -> userService.get(877869));
 
@@ -175,51 +182,60 @@ class FilmoRateApplicationTests {
 
     @Test
     void getAllUsersTest() {
-        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza",
+                LocalDate.of(2002, 10, 7)));
         int userId1 = user1.getId();
 
-        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name", LocalDate.of(1998, 7, 9)));
+        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name",
+                LocalDate.of(1998, 7, 9)));
         int userId2 = user2.getId();
 
-        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick", LocalDate.of(1987, 11, 17)));
+        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick",
+                LocalDate.of(1987, 11, 17)));
         int userId3 = user3.getId();
 
         List<User> allUsers = userService.getAll();
 
         assertEquals(3, allUsers.size(), "Пользователи не были добавлены");
-        assertEquals(true, allUsers.contains(userService.get(userId1)), "Пользователь не был добавлен в список");
-        assertEquals(true, allUsers.contains(userService.get(userId2)), "Пользователь не был добавлен в список");
-        assertEquals(true, allUsers.contains(userService.get(userId3)), "Пользователь не был добавлен в список");
+        assertTrue(allUsers.contains(userService.get(userId1)), "Пользователь не был добавлен в список");
+        assertTrue(allUsers.contains(userService.get(userId2)), "Пользователь не был добавлен в список");
+        assertTrue(allUsers.contains(userService.get(userId3)), "Пользователь не был добавлен в список");
     }
 
     @Test
     void getUsersByIds() {
-        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza",
+                LocalDate.of(2002, 10, 7)));
         int userId1 = user1.getId();
 
-        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name", LocalDate.of(1998, 7, 9)));
+        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name",
+                LocalDate.of(1998, 7, 9)));
         int userId2 = user2.getId();
 
-        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick", LocalDate.of(1987, 11, 17)));
+        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick",
+                LocalDate.of(1987, 11, 17)));
         int userId3 = user3.getId();
 
         List<User> usersByIds = userService.getUsersByIds(List.of(userId1, userId2));
 
         assertEquals(2, usersByIds.size(), "Пользователи не были добавлены");
-        assertEquals(true, usersByIds.contains(userService.get(userId1)), "Пользователь не был добавлен в список");
-        assertEquals(true, usersByIds.contains(userService.get(userId2)), "Пользователь не был добавлен в список");
-        assertEquals(false, usersByIds.contains(userService.get(userId3)), "Пользователь был добавлен в список");
+        assertTrue(usersByIds.contains(userService.get(userId1)), "Пользователь не был добавлен в список");
+        assertTrue(usersByIds.contains(userService.get(userId2)), "Пользователь не был добавлен в список");
+        assertFalse(usersByIds.contains(userService.get(userId3)), "Пользователь был добавлен в список");
     }
 
     @Test
     void addFriendAndAcceptFriendshipTest() {
-        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza",
+                LocalDate.of(2002, 10, 7)));
         int userId1 = user1.getId();
 
-        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name", LocalDate.of(1998, 7, 9)));
+        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name",
+                LocalDate.of(1998, 7, 9)));
         int userId2 = user2.getId();
 
-        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick", LocalDate.of(1987, 11, 17)));
+        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick",
+                LocalDate.of(1987, 11, 17)));
         int userId3 = user3.getId();
 
         userService.addFriends(userId1, userId2);
@@ -245,11 +261,13 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void removeFriendTest(){
-        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+    void removeFriendTest() {
+        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza",
+                LocalDate.of(2002, 10, 7)));
         int userId1 = user1.getId();
 
-        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name", LocalDate.of(1998, 7, 9)));
+        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name",
+                LocalDate.of(1998, 7, 9)));
         int userId2 = user2.getId();
 
         userService.addFriends(userId1, userId2);
@@ -277,14 +295,17 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void foundCommonFriendsTest(){
-        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+    void foundCommonFriendsTest() {
+        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza",
+                LocalDate.of(2002, 10, 7)));
         int userId1 = user1.getId();
 
-        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name", LocalDate.of(1998, 7, 9)));
+        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name",
+                LocalDate.of(1998, 7, 9)));
         int userId2 = user2.getId();
 
-        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick", LocalDate.of(1987, 11, 17)));
+        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick",
+                LocalDate.of(1987, 11, 17)));
         int userId3 = user3.getId();
 
         userService.addFriends(userId1, userId2);
@@ -300,18 +321,21 @@ class FilmoRateApplicationTests {
         List<User> commonFriends = userService.commonFriends(actualUser1.getId(), actualUser3.getId());
 
         assertEquals(1, commonFriends.size(), "Нет общих друзей");
-        assertEquals(true, commonFriends.contains(actualUser2), "Неверный общий друг");
+        assertTrue(commonFriends.contains(actualUser2), "Неверный общий друг");
     }
 
     @Test
-    void foundUsersFriendsTest(){
-        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+    void foundUsersFriendsTest() {
+        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza",
+                LocalDate.of(2002, 10, 7)));
         int userId1 = user1.getId();
 
-        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name", LocalDate.of(1998, 7, 9)));
+        User user2 = userService.put(new User("khfk@mail.ru", "dada", "Name",
+                LocalDate.of(1998, 7, 9)));
         int userId2 = user2.getId();
 
-        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick", LocalDate.of(1987, 11, 17)));
+        User user3 = userService.put(new User("lioh@mail.ru", "kaka", "Nick",
+                LocalDate.of(1987, 11, 17)));
         int userId3 = user3.getId();
 
         userService.addFriends(userId1, userId2);
@@ -325,31 +349,34 @@ class FilmoRateApplicationTests {
         userService.acceptFriendship(userId3, userId1);
         actualUser1 = userService.get(userId1);
         usersFriend = userService.getAllFriends(actualUser1.getId());
-        assertEquals( 2, usersFriend.size(), "Не произошло добавления в друзья");
+        assertEquals(2, usersFriend.size(), "Не произошло добавления в друзья");
 
         List<Event> events = eventService.getEvents(userId1);
         assertEquals(4, events.size(), "Эвенты не были добавлены");
     }
 
     @Test
-    void getStatusName(){
+    void getStatusName() {
         String nameAccept = userService.getStatusName(0);
         String nameNotAccept = userService.getStatusName(1);
-        assertEquals("accepted" , nameAccept, "Неверное имя статуса");
-        assertEquals("not accepted" , nameNotAccept, "Неверное имя статуса");
+
+        assertEquals("accepted", nameAccept, "Неверное имя статуса");
+        assertEquals("not accepted", nameNotAccept, "Неверное имя статуса");
     }
 
     @Test
     void deleteTest() {
-        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza", LocalDate.of(2002, 10, 7)));
+        User user1 = userService.put(new User("alala@test.t", "lalala", "Liza",
+                LocalDate.of(2002, 10, 7)));
         int userId1 = user1.getId();
         userService.deleteById(userId1);
         assertEquals(new ArrayList<User>(), userService.getAll());
     }
 
     @Test
-    void putFilmTest(){
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+    void putFilmTest() {
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
         Film actualFilm = filmService.get(filmId);
@@ -361,13 +388,14 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void getFilmWithWrongId(){
+    void getFilmWithWrongId() {
         assertThrows(UnknownDataException.class, () -> filmService.get(123));
     }
 
     @Test
     public void deleteFilmTest() {
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
         filmService.deleteById(filmId);
@@ -375,8 +403,9 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void updateFilmWithGenreTest(){
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+    void updateFilmWithGenreTest() {
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
         putFilm.setName("ВВТ");
@@ -385,7 +414,7 @@ class FilmoRateApplicationTests {
         putFilm.setDescription("CGLL");
         filmService.update(putFilm);
 
-        putFilm.setReleaseDate(LocalDate.of(2008, 8,9));
+        putFilm.setReleaseDate(LocalDate.of(2008, 8, 9));
         filmService.update(putFilm);
 
         putFilm.setDuration(120);
@@ -400,7 +429,7 @@ class FilmoRateApplicationTests {
         Film actualFilm = filmService.get(filmId);
 
         assertEquals(putFilm.getName(), actualFilm.getName(), "Произошло неверное обновление названия фильма");
-        assertEquals( putFilm.getDescription(), actualFilm.getDescription(), "Произошло неверное обновление описания фильма");
+        assertEquals(putFilm.getDescription(), actualFilm.getDescription(), "Произошло неверное обновление описания фильма");
         assertEquals(putFilm.getReleaseDate(), actualFilm.getReleaseDate(), "Произошло неверное обновление даты релиза фильма");
         assertEquals(putFilm.getDuration(), actualFilm.getDuration(), "Произошло неверное обновление продолжительности фильма");
         assertEquals(putFilm.getMpa(), actualFilm.getMpa(), "Произошло неверное обновление категории фильма");
@@ -408,30 +437,34 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void getAllFilmsTest(){
-        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+    void getAllFilmsTest() {
+        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId1 = film1.getId();
 
-        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее", LocalDate.of(1998, 10, 9), 120, filmService.getCategoryById(2)));
+        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее",
+                LocalDate.of(1998, 10, 9), 120, filmService.getCategoryById(2)));
         int filmId2 = film2.getId();
 
-        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц", LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
+        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц",
+                LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
         int filmId3 = film3.getId();
 
         List<Film> allFilm = filmService.getAll();
 
         assertEquals(3, allFilm.size(), "Фильмы не были добавлены");
-        assertEquals(true, allFilm.contains(filmService.get(filmId1)), "Фильм не был добавлен в список");
-        assertEquals(true, allFilm.contains(filmService.get(filmId2)), "Фильм не был добавлен в список");
-        assertEquals(true, allFilm.contains(filmService.get(filmId3)), "Фильм не был добавлен в список");
+        assertTrue(allFilm.contains(filmService.get(filmId1)), "Фильм не был добавлен в список");
+        assertTrue(allFilm.contains(filmService.get(filmId2)), "Фильм не был добавлен в список");
+        assertTrue(allFilm.contains(filmService.get(filmId3)), "Фильм не был добавлен в список");
     }
 
     @Test
-    void addLikeTest(){
+    void addLikeTest() {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
 
-        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
         filmService.addLike(filmId, userId);
@@ -446,11 +479,10 @@ class FilmoRateApplicationTests {
 
         List<Event> events = eventService.getEvents(userId);
         assertEquals(1, events.size(), "Эвент не был добавлен");
-
     }
 
     @Test
-    void deleteLikeTest(){
+    void deleteLikeTest() {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
 
@@ -472,31 +504,32 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void getTopTest(){
+    void getTopTest() {
         User userPut = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = userPut.getId();
 
         User user2 = userService.put(new User("jlj@test.t", "Hello", "Bin", LocalDate.now()));
         int userId2 = user2.getId();
 
-        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId1 = film1.getId();
 
-        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее", LocalDate.of(1998, 10, 9), 120, filmService.getCategoryById(2)));
+        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее",
+                LocalDate.of(1998, 10, 9), 120, filmService.getCategoryById(2)));
         int filmId2 = film2.getId();
 
-        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц", LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
+        Film film3 = filmService.put(new Film("Сплетница", "Сериал про сплетниц",
+                LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
         int filmId3 = film3.getId();
 
         filmService.addLike(filmId1, userId);
-
         filmService.addLike(filmId3, userId);
         filmService.addLike(filmId3, userId2);
 
         Film actualFilm1 = filmService.get(filmId1);
         Film actualFilm2 = filmService.get(filmId2);
         Film actualFilm3 = filmService.get(filmId3);
-
 
         List<Film> top = filmService.getTop(3);
         assertEquals(3, top.size(), "Фильмы не были добавлены в список");
@@ -506,8 +539,8 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void getAllGenresAndByIdTest(){
-        List<Genre> genres= filmService.getAllGenres();
+    void getAllGenresAndByIdTest() {
+        List<Genre> genres = filmService.getAllGenres();
         assertEquals(6, genres.size(), "Не все жанры добавлены в список");
 
         Genre genre1 = filmService.getGenreById(1);
@@ -517,8 +550,8 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    void getAllMpaAndByIdTest(){
-        List<MPA> mpas= filmService.getAllCategories();
+    void getAllMpaAndByIdTest() {
+        List<MPA> mpas = filmService.getAllCategories();
         assertEquals(5, mpas.size(), "Не все категории добавлены в список");
 
         MPA mpa1 = filmService.getCategoryById(1);
@@ -579,7 +612,7 @@ class FilmoRateApplicationTests {
         );
     }
 
-    void putAndGetEventTest(){
+    void putAndGetEventTest() {
         User putUser = userService.put(new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
         int userId = putUser.getId();
 
@@ -649,5 +682,123 @@ class FilmoRateApplicationTests {
                 () -> assertEquals(film2, filmList.get(1), "Данные не верны"),
                 () -> assertEquals(2, filmList.size(), "Данные не верны")
         );
+    }
+
+    @Test
+    @DisplayName("Получение списка общих фильмов для двух пользователей")
+    void getCommonFilmsTest() {
+        Film film = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+
+        User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
+        User user2 = userService.put(new User("friend@mail.ru", "friend", "friend adipisicing", LocalDate.now()));
+
+        filmService.addLike(film.getId(), user1.getId());
+        filmService.addLike(film.getId(), user2.getId());
+
+        List<Film> actualResult = filmService.getCommonFilms(user1.getId(), user2.getId());
+        assertAll(
+                () -> assertThat(actualResult.size())
+                        .as("Длина списка общих фильмов не соответствует ожидаемой!")
+                        .isOne(),
+                () -> assertThat(actualResult.get(0))
+                        .as("Список общих фильмов не соответствует ожидаемому!")
+                        .usingRecursiveComparison()
+                        .ignoringFields("genres", "userLikes")
+                        .isEqualTo(film)
+        );
+    }
+
+    @Test
+    @DisplayName("Получение списка общих фильмов для двух пользователей, у которых их нет")
+    void getNoCommonFilmsTest() {
+        Film film = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+
+        User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
+        User user2 = userService.put(new User("friend@mail.ru", "friend", "friend adipisicing", LocalDate.now()));
+
+        filmService.addLike(film.getId(), user1.getId());
+
+        List<Film> actualResult = filmService.getCommonFilms(user1.getId(), user2.getId());
+        assertThat(actualResult.size())
+                .as("Длина списка общих фильмов не соответствует ожидаемой!")
+                .isZero();
+    }
+
+    @Test
+    @DisplayName("Получение списка общих фильмов для двух пользователей в случае, если один из них не существут")
+    void getCommonFilmsForUndefinedUser() {
+        User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
+
+        assertThatExceptionOfType(UnknownDataException.class)
+                .isThrownBy(() -> filmService.getCommonFilms(user1.getId(), user1.getId() + 1))
+                .withMessage("user с id = %s не найден.", user1.getId() + 1);
+    }
+
+    @Test
+    @DisplayName("Получение рекомендаций для пользователя")
+    void getRecommendationsTest() {
+        Film film1 = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+        Film film2 = filmService.put(new Film("Бегущий по лезвию", "Фильм про будущее",
+                LocalDate.of(1998, 10, 9), 120, filmService.getCategoryById(2)));
+
+        User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
+        User user2 = userService.put(new User("friend@mail.ru", "friend", "adipisicing", LocalDate.now()));
+
+        filmService.addLike(film1.getId(), user1.getId());
+        filmService.addLike(film1.getId(), user2.getId());
+        filmService.addLike(film2.getId(), user1.getId());
+
+        List<Film> actualResult = userService.getRecommendations(user2.getId());
+        assertAll(
+                () -> assertThat(actualResult.size())
+                        .as("Длина списка рекомендаций не соответствует ожидаемой!")
+                        .isEqualTo(1),
+                () -> assertThat(actualResult.get(0))
+                        .as("Список рекомендаций не соответствует ожидаемому!")
+                        .usingRecursiveComparison()
+                        .ignoringFields("genres", "userLikes")
+                        .isEqualTo(film2)
+        );
+    }
+
+    @Test
+    @DisplayName("Получение рекомендаций для несуществующего пользователя")
+    void getRecommendationsForUndefinedUserTest() {
+        int id = new Random().nextInt(100);
+
+        assertThatExceptionOfType(UnknownDataException.class)
+                .isThrownBy(() -> userService.getRecommendations(id))
+                .withMessage("user с id = %s не найден.", id);
+    }
+
+    @Test
+    @DisplayName("Получение рекомендаций в случае отсутствия лайков у пользователя")
+    void getRecommendationsIfNoLikesTest() {
+        User user = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
+
+        assertThat(userService.getRecommendations(user.getId()).size())
+                .as("Длина списка рекомендаций не соответствует ожидаемой!")
+                .isZero();
+    }
+
+    @Test
+    @DisplayName("Получение рекомендаций в случае, если у наиболее похожего пользователя такой же список лайков")
+    void getRecommendationsIfSameLikesTest() {
+        Film film = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+
+        User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
+        User user2 = userService.put(new User("friend@mail.ru", "friend", "friend", LocalDate.now()));
+        List<Integer> userIds = Arrays.asList(user1.getId(), user2.getId());
+
+        userIds.forEach(userId -> filmService.addLike(film.getId(), userId));
+
+        List<Film> actualResult = userService.getRecommendations(userIds.get(new Random().nextInt(userIds.size())));
+        assertThat(actualResult.size())
+                .as("Длина списка рекомендаций не соответствует ожидаемой!")
+                .isZero();
     }
 }
