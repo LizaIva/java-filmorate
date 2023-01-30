@@ -277,6 +277,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Film> getRecommendations(Integer userId) {
+        checkUser(userId);
+
         int maxMatch = 0;
         Integer similarUserId = null;
 
