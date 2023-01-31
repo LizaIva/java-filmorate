@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.exception.AlreadyExistException;
 import ru.yandex.practicum.exception.UnknownDataException;
 import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
@@ -296,7 +295,7 @@ public Film updateFilm(Film film) {
                 "WHERE film.film_id IN (" +
                 "SELECT film_id FROM film_director WHERE director_id = ?) " +
                 "GROUP BY film.film_id " +
-                "ORDER BY COUNT(fl.user_id)";
+                "ORDER BY COUNT(fl.user_id) DESC";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilmData(rs), directorId);
     }
