@@ -3,7 +3,7 @@ package ru.yandex.practicum.model.film;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import ru.yandex.practicum.validation.FilmReleaseDate;
+import ru.yandex.practicum.db.FilmReleaseDate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

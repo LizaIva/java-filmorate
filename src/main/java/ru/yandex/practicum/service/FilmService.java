@@ -3,7 +3,6 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.exception.AlreadyExistException;
 import ru.yandex.practicum.model.event.constants.EventType;
 import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Director;
@@ -13,7 +12,7 @@ import ru.yandex.practicum.model.film.MPA;
 import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.UserStorage;
-import ru.yandex.practicum.validation.FilmValidator;
+import ru.yandex.practicum.db.FilmValidator;
 
 import java.util.ArrayList;
 import java.util.Comparator;

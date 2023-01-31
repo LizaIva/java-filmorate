@@ -8,7 +8,7 @@ import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
-import ru.yandex.practicum.validation.UserValidator;
+import ru.yandex.practicum.db.UserValidator;
 
 import java.util.List;
 

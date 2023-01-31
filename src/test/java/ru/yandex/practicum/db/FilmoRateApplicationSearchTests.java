@@ -1,4 +1,4 @@
-package ru.yandex.practicum.validation;
+package ru.yandex.practicum.db;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +38,9 @@ class FilmoRateApplicationSearchTests {
         jdbcTemplate.update("delete from film_likes");
         jdbcTemplate.update("delete from film_genre");
         jdbcTemplate.update("delete from reviews");
+        jdbcTemplate.update("delete from event_feed");
+        jdbcTemplate.update("DELETE FROM director");
+        jdbcTemplate.update("DELETE FROM film_director");
     }
 
     @Test

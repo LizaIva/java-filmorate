@@ -1,4 +1,4 @@
-package ru.yandex.practicum.validation;
+package ru.yandex.practicum.db;
 
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.film.Film;
