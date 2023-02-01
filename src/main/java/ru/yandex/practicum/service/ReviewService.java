@@ -5,7 +5,7 @@ import ru.yandex.practicum.model.event.constants.EventType;
 import ru.yandex.practicum.model.event.constants.Operation;
 import ru.yandex.practicum.model.film.Review;
 import ru.yandex.practicum.storage.db.ReviewDbStorage;
-import ru.yandex.practicum.db.ReviewValidator;
+import ru.yandex.practicum.validation.ReviewValidator;
 
 import java.util.List;
 

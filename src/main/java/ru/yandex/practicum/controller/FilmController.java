@@ -2,15 +2,7 @@ package ru.yandex.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.service.FilmService;
 
@@ -94,8 +86,8 @@ public class FilmController {
 
     @GetMapping(value = "/popular", params = {"count", "genreId", "year"})
     public List<Film> findLimitPopularFilmsByGenreAndYear(@RequestParam(value = "count") Integer count,
-                                                     @RequestParam(value = "genreId") Integer genreId,
-                                                     @RequestParam(value = "year") Integer year) {
+                                                          @RequestParam(value = "genreId") Integer genreId,
+                                                          @RequestParam(value = "year") Integer year) {
 
         log.info("Получен запрос на вывод топ {} фильмов в жанре {} за {} год", count, genreId, year);
         return filmService.findLimitPopularFilmsByGenreAndYear(count, genreId, year);

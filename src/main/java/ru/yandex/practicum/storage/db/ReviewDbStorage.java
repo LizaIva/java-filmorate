@@ -102,8 +102,8 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review addLikeToReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
         userStorage.checkUser(userId);
-        jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?)", reviewId, userId, 1);
-        jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL+1 where REVIEW_ID = ?", reviewId);
+        jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?); " +
+                "update REVIEWS set USEFUL = USEFUL+1 where REVIEW_ID = ?", reviewId, userId, 1, reviewId);
         getReviewById(reviewId).setUseful(getReviewById(reviewId).getReviewId() + 1);
 
         return getReviewById(reviewId);
@@ -113,8 +113,8 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review addDislikeToReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
         userStorage.checkUser(userId);
-        jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?)", reviewId, userId, 2);
-        jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId);
+        jdbcTemplate.update("insert into review_likes(review_id, user_id, like_type) values (?,?,?);" +
+                "update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId, userId, 2, reviewId);
         getReviewById(reviewId).setUseful(getReviewById(reviewId).getReviewId() - 1);
 
         return getReviewById(reviewId);
@@ -124,8 +124,9 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review deleteLikeFromReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
         userStorage.get(userId);
-        jdbcTemplate.update("delete from review_likes where review_id = ? AND user_id = ? AND like_type = 1", reviewId, userId);
-        jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId);
+        jdbcTemplate.update("delete from review_likes where review_id = ? AND user_id = ? AND like_type = 1; " +
+                "update REVIEWS set USEFUL = USEFUL - 1 where REVIEW_ID = ?", reviewId, userId, reviewId);
+
 
         return getReviewById(reviewId);
     }
@@ -134,8 +135,8 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review deleteDislikeFromReview(Integer reviewId, Integer userId) {
         getReviewById(reviewId);
         userStorage.get(userId);
-        jdbcTemplate.update("delete from review_likes where review_id = ? AND user_id = ? AND like_type = 2", reviewId, userId);
-        jdbcTemplate.update("update REVIEWS set USEFUL = USEFUL+1 where REVIEW_ID = ?", reviewId);
+        jdbcTemplate.update("delete from review_likes where review_id = ? AND user_id = ? AND like_type = 2; " +
+                "update REVIEWS set USEFUL = USEFUL+1 where REVIEW_ID = ?", reviewId, userId, reviewId);
 
         return getReviewById(reviewId);
     }

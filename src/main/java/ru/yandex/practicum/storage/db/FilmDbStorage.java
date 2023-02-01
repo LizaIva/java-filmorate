@@ -15,12 +15,8 @@ import ru.yandex.practicum.model.film.MPA;
 import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
 
-
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -110,67 +106,67 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-public Film updateFilm(Film film) {
-    Film filmForUpdate = get(film.getId());
+    public Film updateFilm(Film film) {
+        Film filmForUpdate = get(film.getId());
 
-    StringBuilder query = new StringBuilder("update film set ");
-    List<Object> args = new LinkedList<>();
+        StringBuilder query = new StringBuilder("update film set ");
+        List<Object> args = new LinkedList<>();
 
-    if (film.getName() != null) {
-        query.append("TITLE = ?");
-        args.add(film.getName());
+        if (film.getName() != null) {
+            query.append("TITLE = ?");
+            args.add(film.getName());
 
-        filmForUpdate.setName(film.getName());
-    }
-    if (film.getDescription() != null) {
-        if (!args.isEmpty()) {
-            query.append(", ");
+            filmForUpdate.setName(film.getName());
         }
-        query.append("DESCRIPTION = ?");
-        args.add(film.getDescription());
+        if (film.getDescription() != null) {
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("DESCRIPTION = ?");
+            args.add(film.getDescription());
 
-        filmForUpdate.setDescription(film.getDescription());
-    }
-
-    if (film.getReleaseDate() != null) {
-        if (!args.isEmpty()) {
-            query.append(", ");
-        }
-        query.append("RELEASE_DATE = ?");
-        args.add(film.getReleaseDate());
-
-        filmForUpdate.setReleaseDate(film.getReleaseDate());
-    }
-
-    if (film.getDuration() != null) {
-        if (!args.isEmpty()) {
-            query.append(", ");
-        }
-        query.append("DURATION = ?");
-        args.add(film.getDuration());
-        filmForUpdate.setDuration(film.getDuration());
-    }
-
-    if (film.getMpa() != null) {
-        if (!args.isEmpty()) {
-            query.append(", ");
+            filmForUpdate.setDescription(film.getDescription());
         }
 
-        query.append("MPA_ID = ?");
-        args.add(film.getMpa().getId());
+        if (film.getReleaseDate() != null) {
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("RELEASE_DATE = ?");
+            args.add(film.getReleaseDate());
 
-        filmForUpdate.setMpa(film.getMpa());
+            filmForUpdate.setReleaseDate(film.getReleaseDate());
+        }
+
+        if (film.getDuration() != null) {
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+            query.append("DURATION = ?");
+            args.add(film.getDuration());
+            filmForUpdate.setDuration(film.getDuration());
+        }
+
+        if (film.getMpa() != null) {
+            if (!args.isEmpty()) {
+                query.append(", ");
+            }
+
+            query.append("MPA_ID = ?");
+            args.add(film.getMpa().getId());
+
+            filmForUpdate.setMpa(film.getMpa());
+        }
+
+        if (!args.isEmpty()) {
+            query.append(" where FILM_ID = ?");
+            args.add(film.getId());
+
+            jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
+        }
+        filmForUpdate.setDirectors(putDirector(film.getId(), film.getDirectors()));
+        return filmForUpdate;
     }
-
-    if (!args.isEmpty()) {
-        query.append(" where FILM_ID = ?");
-        args.add(film.getId());
-
-        jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
-    }
-    filmForUpdate.setDirectors(putDirector(film.getId(), film.getDirectors()));
-    return filmForUpdate;
-}
 
 
     @Override

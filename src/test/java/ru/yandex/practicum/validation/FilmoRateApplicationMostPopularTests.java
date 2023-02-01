@@ -1,4 +1,4 @@
-package ru.yandex.practicum.db;
+package ru.yandex.practicum.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;

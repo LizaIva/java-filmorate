@@ -1,4 +1,4 @@
-package ru.yandex.practicum.db;
+package ru.yandex.practicum.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

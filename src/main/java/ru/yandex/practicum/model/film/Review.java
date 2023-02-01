@@ -1,34 +1,26 @@
 package ru.yandex.practicum.model.film;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import lombok.*;
 
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Builder
 public class Review {
-    int reviewId;
+    private int reviewId;
 
     @NonNull
-    String content;
+    private String content;
 
     @NonNull
-    Boolean isPositive;
+    private Boolean isPositive;
 
     @NonNull
-    Integer userId;
+    private Integer userId;
 
     @NonNull
-    Integer filmId;
+    private Integer filmId;
 
-    Integer useful = 0;
+    private Integer useful = 0;
 }

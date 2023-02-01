@@ -10,6 +10,7 @@ import ru.yandex.practicum.model.event.constants.Operation;
 @AllArgsConstructor
 public class Event {
     private Integer eventId;
+
     private Long timestamp;
 
     private Integer userId;
