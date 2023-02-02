@@ -203,16 +203,27 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(int filmId, int userId) {
+        //to do
+        //Виталий
+        //добавление аргумента userMark в метод
+        //поправить запрос добавления оценки в таблицу
         jdbcTemplate.update("INSERT INTO FILM_LIKES VALUES (?, ?)", filmId, userId);
     }
 
     @Override
     public void deleteLike(int filmId, int userId) {
+        //to do
+        //Виталий
+        //добавление аргумента userMark в метод
+        //поправить запрос удаления оценки из таблицы
         jdbcTemplate.update("DELETE FROM FILM_LIKES WHERE FILM_ID = ? AND USER_ID = ?", filmId, userId);
     }
 
     @Override
     public List<Film> getTop(Integer limit) {
+        //to do
+        //Максим
+        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT *, M.NAME as mpa_name " +
                 "FROM film AS f LEFT JOIN (SELECT film_id, " +
                 "                       COUNT(user_id) as likes_count " +
@@ -286,6 +297,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsDirectorSortedByLikes(int directorId) {
+        //to do
+        //Максим
+        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT *, M.NAME AS mpa_name from film join MPA M on M.MPA_ID = FILM.MPA_ID " +
                 "LEFT JOIN film_likes fl ON film.film_id = fl.film_id " +
                 "WHERE film.film_id IN (" +
@@ -298,6 +312,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        //to do
+        //Максим
+        //нужно проверить сортировку общих фильмов
         String sqlQuery = "SELECT f.FILM_ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.NAME AS mpa_name " +
                 "FROM FILM AS f LEFT JOIN MPA AS m on m.MPA_ID = f.MPA_ID WHERE FILM_ID IN " +
                 "(SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ? AND FILM_ID IN " +
@@ -310,6 +327,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        //to do
+        //Максим
+        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
@@ -329,6 +349,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId) {
+        //to do
+        //Максим
+        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
@@ -347,6 +370,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findPopularFilmsByYear(Integer year) {
+        //to do
+        //Максим
+        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
@@ -365,6 +391,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findPopularFilmsByGenre(Integer genreId) {
+        //to do
+        //Максим
+        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
