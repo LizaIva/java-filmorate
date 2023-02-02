@@ -272,6 +272,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Film> getRecommendations(Integer userId) {
+        //to do
+        //Иван
+        //реализовать вывод фильмов только с положительной оценкой
+
         checkUser(userId);
 
         int maxMatch = 0;

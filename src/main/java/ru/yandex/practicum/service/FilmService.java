@@ -57,6 +57,10 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
+        //to do
+        //Виталий
+        //добавление аргумента userMark в метод
+        //учёт значения по умолчанию 1 и добавление в БД таблица film_likes
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
         filmStorage.addLike(filmId, userId);
@@ -64,6 +68,10 @@ public class FilmService {
     }
 
     public void removeLike(int filmId, int userId) {
+        //to do
+        //Виталий
+        //добавление аргумента userMark в метод
+        //учёт значения по умолчанию 1 и удаление из БД таблица film_likes
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
         filmStorage.deleteLike(filmId, userId);
