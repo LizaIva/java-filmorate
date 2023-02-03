@@ -186,6 +186,6 @@ public class FilmService {
 class LikesFilmReverseComparator implements Comparator<Film> {
     @Override
     public int compare(Film film1, Film film2) {
-        return -1 * Integer.valueOf(film1.getUserLikes().size()).compareTo((film2.getUserLikes().size()));
+        return -1 * Integer.valueOf(film1.getMiddleRating()).compareTo((film2.getMiddleRating()));
     }
 }
