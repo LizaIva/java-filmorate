@@ -54,10 +54,8 @@ CREATE TABLE IF NOT EXISTS film_likes
     film_id INTEGER,
     FOREIGN KEY (film_id) REFERENCES film (film_id) ON DELETE CASCADE,
     user_id INTEGER,
-    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
-    --to do
-    --Виталий
-    --добавление колонки mark для хранения оценки пользователя
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    mark INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS film_genre

@@ -202,20 +202,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(int filmId, int userId) {
-        //to do
-        //Виталий
-        //добавление аргумента userMark в метод
-        //поправить запрос добавления оценки в таблицу
-        jdbcTemplate.update("INSERT INTO FILM_LIKES VALUES (?, ?)", filmId, userId);
+    public void addLike(int filmId, int userId, Integer userMark) {
+        jdbcTemplate.update("INSERT INTO FILM_LIKES VALUES (?, ?, ?)", filmId, userId, userMark);
     }
 
     @Override
     public void deleteLike(int filmId, int userId) {
-        //to do
-        //Виталий
-        //добавление аргумента userMark в метод
-        //поправить запрос удаления оценки из таблицы
         jdbcTemplate.update("DELETE FROM FILM_LIKES WHERE FILM_ID = ? AND USER_ID = ?", filmId, userId);
     }
 
