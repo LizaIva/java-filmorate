@@ -56,22 +56,14 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    public void addLike(int filmId, int userId) {
-        //to do
-        //Виталий
-        //добавление аргумента userMark в метод
-        //учёт значения по умолчанию 1 и добавление в БД таблица film_likes
+    public void addLike(int filmId, int userId, Integer userMark) {
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
-        filmStorage.addLike(filmId, userId);
+        filmStorage.addLike(filmId, userId, userMark);
         eventService.putEvent(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
     public void removeLike(int filmId, int userId) {
-        //to do
-        //Виталий
-        //добавление аргумента userMark в метод
-        //учёт значения по умолчанию 1 и удаление из БД таблица film_likes
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
         filmStorage.deleteLike(filmId, userId);

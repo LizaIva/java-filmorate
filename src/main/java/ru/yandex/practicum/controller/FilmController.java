@@ -2,6 +2,7 @@ package ru.yandex.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.service.FilmService;
@@ -42,19 +43,15 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
-        //to do
-        //Виталий
-        //добавление аргумента userMark в метод, установка значения по умолчанию 1
+    public void addLike(@PathVariable Integer id,
+                        @PathVariable Integer userId,
+                        @RequestParam(name = "userMark", required = false, defaultValue = "10") Integer userMark) {
         log.info("Получен запрос на добавление лайка фильму c id = {} от пользователя c id = {}", id, userId);
-        filmService.addLike(id, userId);
+        filmService.addLike(id, userId, userMark);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
-        //to do
-        //Виталий
-        //добавление аргумента userMark в метод, установка значения по умолчанию 1
         log.info("Получен запрос на удаление лайка у фильма с id = {} от пользователя с id = {}", id, userId);
         filmService.removeLike(id, userId);
     }
