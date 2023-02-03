@@ -54,8 +54,9 @@ class FilmoRateApplicationRecommendationTests {
         User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
         User user2 = userService.put(new User("friend@mail.ru", "friend", "friend adipisicing", LocalDate.now()));
 
-        filmService.addLike(film.getId(), user1.getId());
-        filmService.addLike(film.getId(), user2.getId());
+        filmService.addLike(film.getId(), user1.getId(),10);
+        filmService.addLike(film.getId(), user2.getId(),10);
+        film.setMiddleRating(10);
 
         List<Film> actualResult = filmService.getCommonFilms(user1.getId(), user2.getId());
         assertAll(
@@ -79,7 +80,7 @@ class FilmoRateApplicationRecommendationTests {
         User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
         User user2 = userService.put(new User("friend@mail.ru", "friend", "friend adipisicing", LocalDate.now()));
 
-        filmService.addLike(film.getId(), user1.getId());
+        filmService.addLike(film.getId(), user1.getId(), 10);
 
         List<Film> actualResult = filmService.getCommonFilms(user1.getId(), user2.getId());
         assertThat(actualResult.size())
@@ -108,9 +109,11 @@ class FilmoRateApplicationRecommendationTests {
         User user1 = userService.put(new User("mail@mail.ru", "dolore", "Nick Name", LocalDate.now()));
         User user2 = userService.put(new User("friend@mail.ru", "friend", "adipisicing", LocalDate.now()));
 
-        filmService.addLike(film1.getId(), user1.getId());
-        filmService.addLike(film1.getId(), user2.getId());
-        filmService.addLike(film2.getId(), user1.getId());
+        filmService.addLike(film1.getId(), user1.getId(), 10);
+        filmService.addLike(film1.getId(), user2.getId(), 10);
+        filmService.addLike(film2.getId(), user1.getId(), 10);
+        film1.setMiddleRating(10);
+        film2.setMiddleRating(10);
 
         List<Film> actualResult = userService.getRecommendations(user2.getId());
         assertAll(
@@ -155,7 +158,7 @@ class FilmoRateApplicationRecommendationTests {
         User user2 = userService.put(new User("friend@mail.ru", "friend", "friend", LocalDate.now()));
         List<Integer> userIds = Arrays.asList(user1.getId(), user2.getId());
 
-        userIds.forEach(userId -> filmService.addLike(film.getId(), userId));
+        userIds.forEach(userId -> filmService.addLike(film.getId(), userId, 10));
 
         List<Film> actualResult = userService.getRecommendations(userIds.get(new Random().nextInt(userIds.size())));
         assertThat(actualResult.size())

@@ -106,7 +106,7 @@ class FilmoRateApplicationDirectorTests {
         film1.setDirectors(Arrays.asList(director1));
         film1 = filmService.put(film1);
 
-        filmService.addLike(film1.getId(), userId1);
+        filmService.addLike(film1.getId(), userId1, 10);
 
         film2.setDirectors(Arrays.asList(director1));
         film2 = filmService.put(film2);

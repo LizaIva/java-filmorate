@@ -164,6 +164,8 @@ public class FilmDbStorage implements FilmStorage {
 
             jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
         }
+
+
         filmForUpdate.setDirectors(putDirector(film.getId(), film.getDirectors()));
         return filmForUpdate;
     }
@@ -422,6 +424,9 @@ public class FilmDbStorage implements FilmStorage {
 
         String sqlGetMiddleRating = "SELECT AVG(mark) FROM film_likes where film_id = ?";
         film.setMiddleRating(jdbcTemplate.queryForObject(sqlGetMiddleRating, new Object[]{film.getId()}, Integer.class));
+        if (film.getMiddleRating() == null) {
+            film.setMiddleRating(0);
+        }
         return film;
     }
 
