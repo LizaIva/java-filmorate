@@ -14,7 +14,7 @@ public interface FilmStorage {
 
     List<Film> getAll();
 
-    void addLike(int filmId, int userId);
+    void addLike(int filmId, int userId, Integer userMark);
 
     void deleteLike(int filmId, int userId);
 
@@ -30,5 +30,23 @@ public interface FilmStorage {
 
     void updateGenre(int filmId, List<Genre> genreIds);
 
-    Film updateFilm (Film film);
+    Film updateFilm(Film film);
+
+    List<Film> getFilmsDirectorSortedByYear(int directorId);
+
+    List<Film> getFilmsDirectorSortedByLikes(int directorId);
+
+    List<Film> getCommonFilms(Integer userId, Integer friendId);
+
+    Film deleteById(int id);
+
+    void checkFilm(int id);
+
+    List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year);
+
+    List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId);
+
+    List<Film> findPopularFilmsByYear(Integer year);
+
+    List<Film> findPopularFilmsByGenre(Integer genreId);
 }

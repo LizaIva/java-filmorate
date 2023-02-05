@@ -7,7 +7,6 @@ import ru.yandex.practicum.validation.FilmReleaseDate;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +14,6 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(exclude = "userLikes")
 public class Film {
-
     private Integer id;
 
     @NotBlank(message = "Название фильма не может быть пустым")
@@ -27,6 +25,7 @@ public class Film {
     @PastOrPresent(message = "Дата релиза не может быть в будущем времени")
     @FilmReleaseDate(message = "Дата релиза не может быть раньше 28.12.1895")
     private LocalDate releaseDate;
+
     @NonNull
     @Positive
     private Integer duration;
@@ -38,6 +37,8 @@ public class Film {
 
     private List<Genre> genres;
 
+    private List<Director> directors;
+
     public Film(String name, String description, LocalDate releaseDate, Integer duration, MPA mpa) {
         this.name = name;
         this.description = description;
@@ -45,4 +46,6 @@ public class Film {
         this.duration = duration;
         this.mpa = mpa;
     }
+
+    Integer middleRating = 0;
 }

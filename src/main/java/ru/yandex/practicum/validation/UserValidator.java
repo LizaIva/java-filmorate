@@ -6,7 +6,6 @@ import ru.yandex.practicum.model.user.User;
 import java.time.LocalDate;
 
 public class UserValidator {
-
     public static void validate(User user) {
         if (user == null) {
             throw new ValidationException("Отсутсвуют данные для создания пользователя");
@@ -21,9 +20,11 @@ public class UserValidator {
         if (user == null) {
             throw new ValidationException("Отсутсвуют данные для создания пользователя");
         }
+
         if (user.getId() == null) {
             throw new ValidationException("Отсутсвует id пользователя");
         }
+
         validateUpdatedEmail(user.getEmail());
         validateUpdatedLogin(user.getLogin());
         validateUpdatedName(user);
@@ -79,5 +80,4 @@ public class UserValidator {
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
     }
-
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.storage;
 
+import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
 
 import java.util.List;
@@ -11,6 +12,8 @@ public interface UserStorage {
     User updateUser(User user);
 
     User get(Integer id);
+
+    User deleteById(int id);
 
     List<User> getUsersByIds(List<Integer> ids);
 
@@ -27,4 +30,8 @@ public interface UserStorage {
     List<User> foundUserFriends(int userId);
 
     String getStatusName(int statusId);
+
+    void checkUser(int id);
+
+    List<Film> getRecommendations(Integer userId);
 }
