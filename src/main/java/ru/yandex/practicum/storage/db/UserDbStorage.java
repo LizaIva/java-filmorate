@@ -13,11 +13,17 @@ import ru.yandex.practicum.model.user.FriendConnection;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.storage.UserStorage;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -272,38 +278,124 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Film> getRecommendations(Integer userId) {
-        //to do
-        //Иван
-        //реализовать вывод фильмов только с положительной оценкой
-
         checkUser(userId);
 
-        int maxMatch = 0;
-        Integer similarUserId = null;
+        Map<Integer, HashMap<Integer, Double>> data = new HashMap<>();
+        String sqlQuery = "SELECT user_id, film_id, mark FROM film_likes;";
 
-        for (User otherUser : getAll()) {
-            if (!otherUser.equals(get(userId))) {
-                List<Integer> overlap = getLikedFilmsIds(userId);
+        Map<Integer, HashMap<Integer, Double>> rows = jdbcTemplate.query(sqlQuery, this::mapUserMark);
 
-                overlap.retainAll(getLikedFilmsIds(otherUser.getId()));
+        if (rows != null && rows.size() != 0) {
+            for (Map.Entry<Integer, HashMap<Integer, Double>> rowsEntry : rows.entrySet()) {
+                HashMap<Integer, Double> hashMap = rowsEntry.getValue();
 
-                if (overlap.size() > maxMatch) {
-                    maxMatch = overlap.size();
-                    similarUserId = otherUser.getId();
+                for (Map.Entry<Integer, Double> filmMark : hashMap.entrySet()) {
+                    int user = rowsEntry.getKey();
+
+                    if (!data.containsKey(user)) {
+                        data.put(user, new HashMap<>());
+                    }
+
+                    data.get(user).put(filmMark.getKey(), filmMark.getValue());
+                }
+            }
+        } else {
+            return new ArrayList<>();
+        }
+
+        Map<Integer, HashMap<Integer, Double>> diff = new HashMap<>();
+        Map<Integer, HashMap<Integer, Integer>> freq = new HashMap<>();
+
+        for (HashMap<Integer, Double> user : data.values()) {
+            for (Map.Entry<Integer, Double> e : user.entrySet()) {
+                if (!diff.containsKey(e.getKey())) {
+                    diff.put(e.getKey(), new HashMap<>());
+                    freq.put(e.getKey(), new HashMap<>());
+                }
+
+                for (Map.Entry<Integer, Double> e2 : user.entrySet()) {
+                    int oldCount = 0;
+                    if (freq.get(e.getKey()).containsKey(e2.getKey())) {
+                        oldCount = freq.get(e.getKey()).get(e2.getKey());
+                    }
+
+                    double oldDiff = 0.0;
+                    if (diff.get(e.getKey()).containsKey(e2.getKey())) {
+                        oldDiff = diff.get(e.getKey()).get(e2.getKey());
+                    }
+
+                    double observedDiff = e.getValue() - e2.getValue();
+                    freq.get(e.getKey()).put(e2.getKey(), oldCount + 1);
+                    diff.get(e.getKey()).put(e2.getKey(), oldDiff + observedDiff);
                 }
             }
         }
 
-        if (similarUserId != null) {
-            List<Integer> recommendedFilmsIds = getLikedFilmsIds(similarUserId);
-            recommendedFilmsIds.removeAll(getLikedFilmsIds(userId));
-
-            return recommendedFilmsIds.stream()
-                    .map(filmDbStorage::get)
-                    .collect(Collectors.toList());
+        for (Integer j : diff.keySet()) {
+            for (Integer i : diff.get(j).keySet()) {
+                double oldValue = diff.get(j).get(i);
+                int count = freq.get(j).get(i);
+                diff.get(j).put(i, oldValue / count);
+            }
         }
 
-        return new ArrayList<>();
+        HashMap<Integer, Double> uPred = new HashMap<>();
+        HashMap<Integer, Integer> uFreq = new HashMap<>();
+
+        for (Integer j : diff.keySet()) {
+            uFreq.put(j, 0);
+            uPred.put(j, 0.0);
+        }
+
+        Map<Integer, HashMap<Integer, Double>> outputData = new HashMap<>();
+
+        for (Map.Entry<Integer, HashMap<Integer, Double>> user : data.entrySet()) {
+            for (Integer j : user.getValue().keySet()) {
+                for (Integer k : diff.keySet()) {
+                    try {
+                        double predictedValue = diff.get(k).get(j) + user.getValue().get(j);
+                        double finalValue = predictedValue * freq.get(k).get(j);
+                        uPred.put(k, uPred.get(k) + finalValue);
+                        uFreq.put(k, uFreq.get(k) + freq.get(k).get(j));
+                    } catch (NullPointerException ignored) {
+                    }
+                }
+            }
+
+            HashMap<Integer, Double> clean = new HashMap<>();
+
+            for (Integer j : uPred.keySet()) {
+                if (uFreq.get(j) > 0) {
+                    clean.put(j, uPred.get(j) / uFreq.get(j));
+                }
+            }
+
+            List<Integer> items = filmDbStorage.getAll().stream()
+                    .map(Film::getId)
+                    .collect(Collectors.toList());
+
+            for (Integer j : items) {
+                if (user.getValue().containsKey(j)) {
+                    clean.put(j, user.getValue().get(j));
+                } else if (!clean.containsKey(j)) {
+                    clean.put(j, -1.0);
+                }
+            }
+
+            outputData.put(user.getKey(), clean);
+        }
+
+        List<Integer> recommendedFilmsIds = new ArrayList<>();
+
+        for (Map.Entry<Integer, Double> entry : outputData.get(userId).entrySet()) {
+            if (entry.getValue() > 5.0 && !getLikedFilmsIds(userId).contains(entry.getKey())) {
+                recommendedFilmsIds.add(entry.getKey());
+            }
+        }
+
+        return recommendedFilmsIds.stream()
+                .map(filmDbStorage::get)
+                .collect(Collectors.toList());
     }
 
     private List<Integer> getLikedFilmsIds(Integer userId) {
@@ -332,6 +424,22 @@ public class UserDbStorage implements UserStorage {
         user.setId(rs.getInt("user_id"));
 
         return user;
+    }
+
+    private Map<Integer, HashMap<Integer, Double>> mapUserMark(ResultSet rs) throws SQLException {
+        Map<Integer, HashMap<Integer, Double>> rows = new HashMap<>();
+
+        while (rs.next()) {
+            int userId = rs.getInt("user_id");
+
+            if (!rows.containsKey(userId)) {
+                rows.put(userId, new HashMap<>());
+            }
+
+            rows.get(userId).put(rs.getInt("film_id"), (double) rs.getInt("mark"));
+        }
+
+        return rows;
     }
 
     @Override
