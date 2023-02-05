@@ -23,8 +23,11 @@ import java.util.stream.Collectors;
 @Component
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+
     private final UserStorage userStorage;
+
     private final FilmStorage filmStorage;
+
 
     @Override
     public Review addReview(Review review) {

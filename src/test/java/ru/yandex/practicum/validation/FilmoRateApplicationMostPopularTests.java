@@ -55,7 +55,8 @@ class FilmoRateApplicationMostPopularTests {
         film3.setGenres(List.of(filmService.getGenreById(1)));
         filmService.update(film3);
 
-        filmService.addLike(film2.getId(), user.getId());
+        filmService.addLike(film2.getId(), user.getId(), 10);
+        film2.setMiddleRating(10);
 
         List<Film> filmList = filmService.findLimitPopularFilmsByGenreAndYear(3, 4, 1982);
 
@@ -81,7 +82,8 @@ class FilmoRateApplicationMostPopularTests {
         film3.setGenres(List.of(filmService.getGenreById(1)));
         filmService.update(film3);
 
-        filmService.addLike(film1.getId(), user.getId());
+        filmService.addLike(film1.getId(), user.getId(), 10);
+        film1.setMiddleRating(10);
 
         List<Film> filmList = filmService.findPopularFilmsByYearAndGenre(2005, 2);
 
@@ -107,7 +109,8 @@ class FilmoRateApplicationMostPopularTests {
         film3.setGenres(List.of(filmService.getGenreById(1)));
         filmService.update(film3);
 
-        filmService.addLike(film3.getId(), user.getId());
+        filmService.addLike(film3.getId(), user.getId(), 10);
+        film3.setMiddleRating(10);
 
         List<Film> filmList = filmService.findPopularFilmsByYear(2007);
 
@@ -133,8 +136,10 @@ class FilmoRateApplicationMostPopularTests {
         film3.setGenres(List.of(filmService.getGenreById(1)));
         filmService.update(film3);
 
-        filmService.addLike(film1.getId(), user.getId());
-        filmService.addLike(film2.getId(), user.getId());
+        filmService.addLike(film1.getId(), user.getId(), 10);
+        filmService.addLike(film2.getId(), user.getId(), 10);
+        film1.setMiddleRating(10);
+        film2.setMiddleRating(10);
 
         List<Film> filmList = filmService.findPopularFilmsByGenre(6);
 

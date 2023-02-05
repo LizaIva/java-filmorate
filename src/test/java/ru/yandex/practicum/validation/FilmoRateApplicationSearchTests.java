@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class FilmoRateApplicationSearchTests {
     private final FilmService filmService;
     private final UserService userService;
@@ -62,7 +64,7 @@ class FilmoRateApplicationSearchTests {
         film1 = filmService.put(film1);
         int filmId1 = film1.getId();
 
-        filmService.addLike(filmId1, userId1);
+        filmService.addLike(filmId1, userId1, 10);
         film1 = filmService.get(filmId1);
 
         Film film2 = new Film("Бегущий по лезвию", "Фильм про будущее",
@@ -74,8 +76,9 @@ class FilmoRateApplicationSearchTests {
         film2 = filmService.put(film2);
         int filmId2 = film2.getId();
 
-        filmService.addLike(filmId2, userId1);
-        filmService.addLike(filmId2, userId2);
+        filmService.addLike(filmId2, userId1, 10);
+        filmService.addLike(filmId2, userId2, 10);
+
         film2 = filmService.get(filmId2);
 
         Film film3 = new Film("Jonson", "Сериал про сплетниц",
@@ -83,7 +86,6 @@ class FilmoRateApplicationSearchTests {
         film3 = filmService.put(film3);
         int filmId3 = film3.getId();
         film3 = filmService.get(filmId3);
-
         List<Film> allFilm = filmService.getAll();
 
         assertEquals(3, allFilm.size(), "Фильмы не были добавлены");

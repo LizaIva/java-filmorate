@@ -164,6 +164,8 @@ public class FilmDbStorage implements FilmStorage {
 
             jdbcTemplate.update(query.toString(), args.toArray(Object[]::new));
         }
+
+
         filmForUpdate.setDirectors(putDirector(film.getId(), film.getDirectors()));
         return filmForUpdate;
     }
@@ -202,8 +204,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(int filmId, int userId) {
-        jdbcTemplate.update("INSERT INTO FILM_LIKES VALUES (?, ?)", filmId, userId);
+    public void addLike(int filmId, int userId, Integer userMark) {
+        jdbcTemplate.update("INSERT INTO FILM_LIKES VALUES (?, ?, ?)", filmId, userId, userMark);
     }
 
     @Override
@@ -213,6 +215,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTop(Integer limit) {
+        //to do
+        //Максим
+        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT *, M.NAME as mpa_name " +
                 "FROM film AS f LEFT JOIN (SELECT film_id, " +
                 "                       COUNT(user_id) as likes_count " +
@@ -286,30 +291,33 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsDirectorSortedByLikes(int directorId) {
+        //TODO максим
         String sqlQuery = "SELECT *, M.NAME AS mpa_name from film join MPA M on M.MPA_ID = FILM.MPA_ID " +
                 "LEFT JOIN film_likes fl ON film.film_id = fl.film_id " +
                 "WHERE film.film_id IN (" +
                 "SELECT film_id FROM film_director WHERE director_id = ?) " +
                 "GROUP BY film.film_id " +
-                "ORDER BY COUNT(fl.user_id) DESC";
+                "ORDER BY AVG(fl.mark) DESC";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilmData(rs), directorId);
     }
 
     @Override
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        //TODO максим
         String sqlQuery = "SELECT f.FILM_ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.NAME AS mpa_name " +
                 "FROM FILM AS f LEFT JOIN MPA AS m on m.MPA_ID = f.MPA_ID WHERE FILM_ID IN " +
                 "(SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ? AND FILM_ID IN " +
                 "(SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?));";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilmData(rs), userId, friendId).stream()
-                .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
+                .sorted((f1, f2) -> f2.getMiddleRating() - f1.getMiddleRating())
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Film> findLimitPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        //TODO максим
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
@@ -318,17 +326,18 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "WHERE fg.genre_id = ? AND EXTRACT(YEAR FROM f.release_date) = ? " +
                 "GROUP BY f.film_id, fg.genre_id " +
-                "ORDER BY COUNT(fl.user_id) DESC " +
+                "ORDER BY COUNT(FL.USER_ID) DESC " +
                 "LIMIT ?";
 
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> mapFilmData(rs),
                 genreId, year, count
-        );
+        ).stream().sorted((f1, f2) -> f2.getMiddleRating() - f1.getMiddleRating()).collect(Collectors.toList());
     }
 
     @Override
     public List<Film> findPopularFilmsByYearAndGenre(Integer year, Integer genreId) {
+        //TODO максим
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
@@ -337,16 +346,17 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "WHERE fg.genre_id = ? AND EXTRACT(YEAR FROM f.release_date) = ? " +
                 "GROUP BY f.film_id, fg.genre_id " +
-                "ORDER BY COUNT(fl.user_id) DESC";
+                "ORDER BY COUNT(FL.USER_ID) DESC";
 
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> mapFilmData(rs),
                 genreId, year
-        );
+        ).stream().sorted((f1, f2) -> f2.getMiddleRating() - f1.getMiddleRating()).collect(Collectors.toList());
     }
 
     @Override
     public List<Film> findPopularFilmsByYear(Integer year) {
+        ///TODO максим
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
@@ -355,16 +365,17 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "WHERE EXTRACT(YEAR FROM f.release_date) = ? " +
                 "GROUP BY f.film_id " +
-                "ORDER BY COUNT(fl.user_id) DESC";
+                "ORDER BY COUNT(FL.USER_ID) DESC";
 
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> mapFilmData(rs),
                 year
-        );
+        ).stream().sorted((f1, f2) -> f2.getMiddleRating() - f1.getMiddleRating()).collect(Collectors.toList());
     }
 
     @Override
     public List<Film> findPopularFilmsByGenre(Integer genreId) {
+        //TODO максим
         String sqlQuery = "SELECT f.*, m.mpa_id, m.name AS mpa_name " +
                 "FROM film AS f " +
                 "LEFT OUTER JOIN film_likes AS fl ON f.film_id = fl.film_id " +
@@ -373,12 +384,12 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT OUTER JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "WHERE fg.genre_id = ? " +
                 "GROUP BY f.film_id, fg.genre_id " +
-                "ORDER BY COUNT(fl.user_id) DESC";
+                "ORDER BY COUNT(FL.USER_ID) DESC";
 
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> mapFilmData(rs),
                 genreId
-        );
+        ).stream().sorted((f1, f2) -> f2.getMiddleRating() - f1.getMiddleRating()).collect(Collectors.toList());
     }
 
     private Film mapFilmData(ResultSet rs) throws SQLException {
@@ -411,6 +422,11 @@ public class FilmDbStorage implements FilmStorage {
         film.setGenres(filmGenres);
         film.setDirectors(putDirector(film.getId(), directorStorage.getDirectorsByFilm(film.getId())));
 
+        String sqlGetMiddleRating = "SELECT AVG(mark) FROM film_likes where film_id = ?";
+        film.setMiddleRating(jdbcTemplate.queryForObject(sqlGetMiddleRating, new Object[]{film.getId()}, Integer.class));
+        if (film.getMiddleRating() == null) {
+            film.setMiddleRating(0);
+        }
         return film;
     }
 

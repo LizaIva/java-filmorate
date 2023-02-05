@@ -1,3 +1,21 @@
+DELETE FROM users;
+ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1;
+DELETE FROM film;
+ALTER TABLE film ALTER COLUMN film_id RESTART WITH 1;
+DELETE FROM mpa;
+ALTER TABLE mpa ALTER COLUMN mpa_id RESTART WITH 1;
+DELETE FROM genre;
+ALTER TABLE genre ALTER COLUMN genre_id RESTART WITH 1;
+DELETE FROM director;
+ALTER TABLE director ALTER COLUMN director_id RESTART WITH 1;
+DELETE FROM event_feed;
+ALTER TABLE event_feed ALTER COLUMN event_id RESTART WITH 1;
+DELETE FROM reviews;
+ALTER TABLE reviews ALTER COLUMN review_id RESTART WITH 1;
+
+
+
+
 MERGE INTO genre (genre_id, name)
     VALUES (1, 'Комедия'),
            (2, 'Драма'),

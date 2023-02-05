@@ -458,15 +458,15 @@ class FilmoRateApplicationUsersAndFilmAndFeedTests {
                 LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
-        filmService.addLike(filmId, userId);
+        filmService.addLike(filmId, userId, 10);
         Film actualFilm = filmService.get(filmId);
         assertEquals(1, actualFilm.getUserLikes().size(), "Лайк не был поставлен");
 
         Film actualFilm2 = filmService.get(filmId);
         assertEquals(1, actualFilm2.getUserLikes().size(), "Один пользователь поставил 2 лайка на один фильм");
 
-        assertThrows(UnknownDataException.class, () -> filmService.addLike(filmId, 123));
-        assertThrows(UnknownDataException.class, () -> filmService.addLike(145, userId));
+        assertThrows(UnknownDataException.class, () -> filmService.addLike(filmId, 123, 10));
+        assertThrows(UnknownDataException.class, () -> filmService.addLike(145, userId, 10));
 
         List<Event> events = eventService.getEvents(userId);
         assertEquals(1, events.size(), "Эвент не был добавлен");
@@ -480,7 +480,7 @@ class FilmoRateApplicationUsersAndFilmAndFeedTests {
         Film putFilm = filmService.put(new Film("Во все тяжкие", "Сериал про двух друзей", LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
         int filmId = putFilm.getId();
 
-        filmService.addLike(filmId, userId);
+        filmService.addLike(filmId, userId, 10);
         Film actualFilm = filmService.get(filmId);
         assertEquals(1, actualFilm.getUserLikes().size(), "Лайк не был поставлен");
 
@@ -514,9 +514,9 @@ class FilmoRateApplicationUsersAndFilmAndFeedTests {
                 LocalDate.of(2007, 10, 9), 45, filmService.getCategoryById(3)));
         int filmId3 = film3.getId();
 
-        filmService.addLike(filmId1, userId);
-        filmService.addLike(filmId3, userId);
-        filmService.addLike(filmId3, userId2);
+        filmService.addLike(filmId1, userId, 10);
+        filmService.addLike(filmId3, userId, 10);
+        filmService.addLike(filmId3, userId2, 10);
 
         Film actualFilm1 = filmService.get(filmId1);
         Film actualFilm2 = filmService.get(filmId2);

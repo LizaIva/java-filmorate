@@ -56,10 +56,10 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    public void addLike(int filmId, int userId) {
+    public void addLike(int filmId, int userId, Integer userMark) {
         filmStorage.checkFilm(filmId);
         userStorage.checkUser(userId);
-        filmStorage.addLike(filmId, userId);
+        filmStorage.addLike(filmId, userId, userMark);
         eventService.putEvent(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
@@ -186,6 +186,6 @@ public class FilmService {
 class LikesFilmReverseComparator implements Comparator<Film> {
     @Override
     public int compare(Film film1, Film film2) {
-        return -1 * Integer.valueOf(film1.getUserLikes().size()).compareTo((film2.getUserLikes().size()));
+        return  film2.getMiddleRating() - film1.getMiddleRating();
     }
 }
