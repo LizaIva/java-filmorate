@@ -47,5 +47,5 @@ public class Film {
         this.mpa = mpa;
     }
 
-    Integer middleRating = 0;
+    private Integer middleRating;
 }

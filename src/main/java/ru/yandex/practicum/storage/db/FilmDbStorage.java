@@ -8,10 +8,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.UnknownDataException;
-import ru.yandex.practicum.model.film.Director;
-import ru.yandex.practicum.model.film.Film;
-import ru.yandex.practicum.model.film.Genre;
-import ru.yandex.practicum.model.film.MPA;
+import ru.yandex.practicum.model.film.*;
 import ru.yandex.practicum.storage.DirectorStorage;
 import ru.yandex.practicum.storage.FilmStorage;
 
@@ -215,9 +212,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTop(Integer limit) {
-        //to do
-        //Максим
-        //поправить вывод фильмов не по лайкам а по оценкам
         String sqlQuery = "SELECT *, M.NAME as mpa_name " +
                 "FROM film AS f LEFT JOIN (SELECT film_id, " +
                 "                       COUNT(user_id) as likes_count " +
@@ -227,10 +221,9 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY film_likes_count.likes_count DESC NULLS LAST " +
                 "LIMIT ?;";
 
-        return jdbcTemplate.query(sqlQuery,
-                (rs, rowNum) -> mapFilmData(rs),
-                limit
-        );
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilmData(rs),
+                        limit).stream()
+                .sorted((f1, f2) -> f2.getMiddleRating() - f1.getMiddleRating()).collect(Collectors.toList());
     }
 
     @Override

@@ -2,17 +2,20 @@ package ru.yandex.practicum.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import ru.yandex.practicum.model.film.Director;
 import ru.yandex.practicum.model.film.Film;
 import ru.yandex.practicum.model.user.User;
 import ru.yandex.practicum.service.FilmService;
 import ru.yandex.practicum.service.UserService;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -148,5 +151,23 @@ class FilmoRateApplicationMostPopularTests {
                 () -> assertEquals(film2, filmList.get(1), "Данные не верны"),
                 () -> assertEquals(2, filmList.size(), "Данные не верны")
         );
+    }
+
+    @Test
+    @DisplayName("Подсчет среднего значения лайка")
+    void AverageScoreTest() {
+        User user1 = userService.put(
+                new User("alala@test.t", "lalala", "alalala", LocalDate.now()));
+        User user2 = userService.put(
+                new User("alal@test.t", "lala", "alala", LocalDate.now()));
+
+        Film film1 = filmService.put(new Film("Бегущий по лезвию", "Сериал про двух друзей",
+                LocalDate.of(2005, 10, 9), 100, filmService.getCategoryById(1)));
+
+        filmService.addLike(film1.getId(), user1.getId(), 10);
+        filmService.addLike(film1.getId(), user2.getId(), 6);
+
+        assertEquals(filmService.get(film1.getId()).getMiddleRating(), 8,
+                "Неверный Подсчет среднего значения лайка");
     }
 }
